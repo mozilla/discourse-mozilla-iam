@@ -1,0 +1,5 @@
+en:
+  site_settings:
+    auth0_domain: 'You auth0 domain. This is typically <account>.auth0.com.'
+    auth0_client_id: 'Your auth0 client id. Find it on the application settings on the Auth0 dashboard.'
+    auth0_client_secret: 'Your auth0 client secret. Find it on the application settings on the Auth0 dashboard.'
