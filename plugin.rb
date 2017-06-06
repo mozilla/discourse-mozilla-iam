@@ -5,9 +5,9 @@
 # url: https://github.com/mozilla/discourse-mozilla-iam
 
 gem 'omniauth-auth0', '2.0.0'
-gem 'jwt', '1.5.6'
 gem 'auth0', '4.1.0'
 
+require 'jwt'
 require 'faraday'
 require 'multi_json'
 require 'base64'
@@ -24,27 +24,18 @@ class MozillaIAM
         payload, header =
           JWT.decode(
             id_token,
-            public_key,
-            true,
-            {
-              algorithm: 'RS256',
-              iss: 'https://' + SiteSetting.auth0_domain + '/',
-              verify_iss: true,
-              aud: SiteSetting.auth0_client_id,
-              verify_aud: true,
-              verify_iat: true
-            }
+            aud: SiteSetting.auth0_client_id
           )
 
         logout_delay = payload['exp'] - payload['iat']
         ::PluginStore.set('mozilla-iam', 'logout_delay', logout_delay)
+        Rails.cache.write('mozilla-iam/logout_delay', logout_delay)
 
         auth_token[:session][:last_refreshed] = Time.now
       rescue => e
         result = Auth::Result.new
         result.failed = true
-        result.failed_reason = 'Authentication failed'
-        result.failed_reason += ': ' + e.message unless e.message.blank?
+        result.failed_reason = I18n.t("login.omniauth_error")
         Rails.logger.error("#{e.class} (#{e.message})\n#{e.backtrace.join("\n")}")
         return result
       end
@@ -69,7 +60,7 @@ class MozillaIAM
 
   class JWKS
     def self.public_key(jwt)
-      header, payload = JWT.decoded_segments(jwt)
+      header, payload = ::JWT.decoded_segments(jwt)
       key = jwks['keys'].find { |key| key['kid'] == header['kid'] }
       cert = OpenSSL::X509::Certificate.new(Base64.decode64(key['x5c'][0]))
       cert.public_key
@@ -81,22 +72,40 @@ class MozillaIAM
     end
   end
 
+  class JWT
+    def self.decode(token, opts)
+      public_key = JWKS.public_key(token)
+      ::JWT.decode(
+        token,
+        public_key,
+        true,
+        {
+          algorithm: 'RS256',
+          iss: 'https://' + SiteSetting.auth0_domain + '/',
+          verify_iss: true,
+          verify_iat: true,
+          verify_aud: true
+        }.merge(opts)
+      )
+    end
+  end
+
   module ApplicationExtensions
     def check_iam_session
       begin
         last_refresh = session[:last_refreshed]
-        if !last_refresh.nil? && current_user
-          refresh_delay = 900 # == 60 * 15
-          now = Time.now
-          if last_refresh + refresh_delay < now
-            logout_delay = ::PluginStore.get('mozilla-iam', 'logout_delay')
-            if last_refresh + logout_delay < now
-              reset_session
-              log_off_user
-            else
-              refresh_iam_session
-            end
+        refresh_delay = 900 # == 60 * 15
+        logout_delay =
+          Rails.cache.fetch('mozilla-iam/logout_delay') do
+            ::PluginStore.get('mozilla-iam', 'logout_delay')
           end
+
+        return if last_refresh.nil? || !current_user
+        if last_refresh + logout_delay < Time.now
+          reset_session
+          log_off_user
+        elsif last_refresh + refresh_delay < Time.now
+          refresh_iam_session
         end
       rescue => e
         reset_session
@@ -133,6 +142,13 @@ class MozillaIAM
     end
 
     def refresh_iam_token
+      token = fetch_iam_token
+      payload = verify_iam_token(token)
+      ::PluginStore.set('mozilla-iam', 'api_token', { jwt: token, exp: payload['exp'] })
+      token
+    end
+
+    def fetch_iam_token
       response =
         Faraday.post(
           'https://' + SiteSetting.auth0_domain + '/oauth/token',
@@ -144,29 +160,17 @@ class MozillaIAM
           }
         )
       token = MultiJson.load(response.body)['access_token']
+    end
 
-      public_key = JWKS.public_key(token)
-
+    def verify_iam_token(token)
       payload, header =
         JWT.decode(
           token,
-          public_key,
-          true,
-          {
-            algorithm: 'RS256',
-            iss: 'https://' + SiteSetting.auth0_domain + '/',
-            verify_iss: true,
-            aud: 'https://' + SiteSetting.auth0_domain + '/api/v2/',
-            verify_aud: true,
-            verify_iat: true,
-            sub: SiteSetting.auth0_client_id + '@clients',
-            verify_sub: true
-          }
+          aud: 'https://' + SiteSetting.auth0_domain + '/api/v2/',
+          sub: SiteSetting.auth0_client_id + '@clients',
+          verify_sub: true
         )
-
-      ::PluginStore.set('mozilla-iam', 'api_token', { jwt: token, exp: payload['exp'] })
-
-      token
+      payload
     end
   end
 end
