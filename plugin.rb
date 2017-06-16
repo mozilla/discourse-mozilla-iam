@@ -5,6 +5,11 @@
 # url: https://github.com/mozilla/discourse-mozilla-iam
 
 gem 'omniauth-auth0', '2.0.0'
+
+gem 'netrc', '0.11.0', require: false
+gem 'domain_name', '0.5.20170404', require: false
+gem 'http-cookie', '1.0.3', require: false
+gem 'rest-client', '1.8.0', require: false
 gem 'auth0', '4.1.0'
 
 require 'jwt'
@@ -12,15 +17,15 @@ require 'faraday'
 require 'multi_json'
 require 'base64'
 require 'openssl'
-require 'auth/oauth2_authenticator'
 
-class MozillaIAM
+require 'auth/oauth2_authenticator'
+require 'admin_constraint'
+
+module ::MozillaIAM
   class Authenticator < Auth::OAuth2Authenticator
     def after_authenticate(auth_token)
       begin
         id_token = auth_token[:credentials][:id_token]
-        public_key = JWKS.public_key(id_token)
-
         payload, header =
           JWT.decode(
             id_token,
@@ -31,7 +36,25 @@ class MozillaIAM
         ::PluginStore.set('mozilla-iam', 'logout_delay', logout_delay)
         Rails.cache.write('mozilla-iam/logout_delay', logout_delay)
 
-        auth_token[:session][:last_refreshed] = Time.now
+        uid = payload['sub']
+        auth_token[:session][:mozilla_iam] = {
+          last_refreshed: Time.now,
+          uid: uid
+        }
+
+        result = Auth::Result.new
+
+        result.email = email = payload['email']
+        result.user = user = User.find_by_email(email)
+        result.email_valid = payload['email_verified']
+        result.name = payload['name']
+        result.extra_data = { uid: uid }
+
+        if user
+          Profile.new(result.user, uid).update_groups
+        end
+
+        result
       rescue => e
         result = Auth::Result.new
         result.failed = true
@@ -39,8 +62,10 @@ class MozillaIAM
         Rails.logger.error("#{e.class} (#{e.message})\n#{e.backtrace.join("\n")}")
         return result
       end
+    end
 
-      super
+    def after_create_account(user, auth)
+      Profile.new(user, auth[:extra_data][:uid]).update_groups
     end
 
     def register_middleware(omniauth)
@@ -51,7 +76,7 @@ class MozillaIAM
         SiteSetting.auth0_domain,
         {
           authorize_params: {
-            scope: 'openid'
+            scope: 'openid name email'
           }
         }
       )
@@ -93,7 +118,7 @@ class MozillaIAM
   module ApplicationExtensions
     def check_iam_session
       begin
-        last_refresh = session[:last_refreshed]
+        last_refresh = session[:mozilla_iam].try(:[], :last_refreshed)
         refresh_delay = 900 # == 60 * 15
         logout_delay =
           Rails.cache.fetch('mozilla-iam/logout_delay') do
@@ -115,40 +140,43 @@ class MozillaIAM
     end
 
     def refresh_iam_session
-      oauth2_user_info = current_user.oauth2_user_info
-
-      if oauth2_user_info
-        auth0 = Auth0Client.new(
-          client_id: SiteSetting.auth0_client_id,
-          token: iam_token,
-          domain: SiteSetting.auth0_domain
-        )
-
-        user_id = oauth2_user_info.uid
-        auth0.user(user_id)
-        session[:last_refreshed] = Time.now
+      uid = session[:mozilla_iam][:uid]
+      if uid
+        Profile.new(current_user, uid).update_groups
+        session[:mozilla_iam][:last_refreshed] = Time.now
       else
-        session[:last_refreshed] = nil
+        session[:mozilla_iam] = nil
+      end
+    end
+  end
+
+  class API
+    def self.user_profile(uid)
+      auth0 = Auth0Client.new(
+        client_id: SiteSetting.auth0_client_id,
+        token: access_token,
+        domain: SiteSetting.auth0_domain
+      )
+      auth0.user(uid)['app_metadata']
+    end
+
+    def self.access_token
+      api_creds = ::PluginStore.get('mozilla-iam', 'api_creds')
+      if api_creds.nil? || api_creds[:exp] < Time.now.to_i + 60
+        refresh_token
+      else
+        api_creds[:access_token]
       end
     end
 
-    def iam_token
-      api_token = ::PluginStore.get('mozilla-iam', 'api_token')
-      if api_token.nil? || api_token[:exp] < Time.now.to_i + 60
-        refresh_iam_token
-      else
-        api_token[:jwt]
-      end
-    end
-
-    def refresh_iam_token
-      token = fetch_iam_token
-      payload = verify_iam_token(token)
-      ::PluginStore.set('mozilla-iam', 'api_token', { jwt: token, exp: payload['exp'] })
+    def self.refresh_token
+      token = fetch_token
+      payload = verify_token(token)
+      ::PluginStore.set('mozilla-iam', 'api_creds', { access_token: token, exp: payload['exp'] })
       token
     end
 
-    def fetch_iam_token
+    def self.fetch_token
       response =
         Faraday.post(
           'https://' + SiteSetting.auth0_domain + '/oauth/token',
@@ -159,10 +187,10 @@ class MozillaIAM
             audience: 'https://' + SiteSetting.auth0_domain + '/api/v2/'
           }
         )
-      token = MultiJson.load(response.body)['access_token']
+      MultiJson.load(response.body)['access_token']
     end
 
-    def verify_iam_token(token)
+    def self.verify_token(token)
       payload, header =
         JWT.decode(
           token,
@@ -173,14 +201,148 @@ class MozillaIAM
       payload
     end
   end
+
+  class Profile
+    def initialize(user, uid)
+      @user = user
+      @uid = uid
+    end
+
+    def profile
+      @profile ||= API.user_profile(@uid)
+    end
+
+    def update_groups
+      return unless profile
+
+      GroupMapping.all.each do |mapping|
+        if mapping.authoritative
+          in_group =
+            profile['authoritativeGroups'].any? do |authoritative_group|
+              authoritative_group['name'] == mapping.iam_group_name
+            end
+        else
+          in_group = profile['groups'].include?(mapping.iam_group_name)
+        end
+
+        if in_group
+          add_to_group(mapping.group)
+        else
+          remove_from_group(mapping.group)
+        end
+      end
+    end
+
+    def add_to_group(group)
+      unless group.users.exists?(@user.id)
+        group.users << @user
+      end
+    end
+
+    def remove_from_group(group)
+      group.users.delete(@user)
+    end
+  end
 end
 
 after_initialize do
+  require_dependency 'admin/admin_controller'
+
   ApplicationController.include MozillaIAM::ApplicationExtensions
   ApplicationController.class_eval do
     before_filter :check_iam_session
   end
+
+  module ::MozillaIAM
+    class Engine < ::Rails::Engine
+      engine_name 'mozilla_iam'
+      isolate_namespace MozillaIAM
+    end
+  end
+
+  ActiveSupport::Inflector.inflections do |inflect|
+    inflect.acronym 'IAM'
+  end
+
+  MozillaIAM::Engine.routes.draw do
+    namespace :admin, constraints: AdminConstraint.new do
+      resources :group_mappings, path: :mappings
+    end
+  end
+
+  Discourse::Application.routes.append do
+    get '/admin/plugins/mozilla-iam' => 'admin/plugins#index'
+    get '/admin/plugins/mozilla-iam/*all' => 'admin/plugins#index'
+    mount MozillaIAM::Engine => '/mozilla_iam'
+  end
+
+  class MozillaIAM::GroupMapping < ActiveRecord::Base
+    belongs_to :group
+  end
+
+  class MozillaIAM::GroupMappingSerializer < ApplicationSerializer
+    attributes :id,
+               :group_name,
+               :iam_group_name,
+               :authoritative
+
+    def group_name
+      object.group.name
+    end
+  end
+
+  class MozillaIAM::Admin
+    class GroupMappingsController < ::Admin::AdminController
+
+      def index
+        mappings = MozillaIAM::GroupMapping.all
+        render_serialized(mappings, MozillaIAM::GroupMappingSerializer)
+      end
+
+      def new
+      end
+
+      def create
+        mapping = MozillaIAM::GroupMapping.new(group_mappings_params)
+        mapping.authoritative = false if params[:authoritative].nil?
+        mapping.group = Group.find_by(name: params[:group_name])
+        mapping.save!
+        render json: success_json
+      end
+
+      def show
+        params.require(:id)
+        mapping = MozillaIAM::GroupMapping.find(params[:id])
+        render_serialized(mapping, MozillaIAM::GroupMappingSerializer)
+      end
+
+      def update
+        params.require(:id)
+        mapping = MozillaIAM::GroupMapping.find(params[:id])
+        mapping.update_attributes!(group_mappings_params)
+        render json: success_json
+      end
+
+      def destroy
+        params.require(:id)
+        mapping = MozillaIAM::GroupMapping.find(params[:id])
+        mapping.destroy
+        render json: success_json
+      end
+
+      def group_mappings_params
+        params.permit(
+          :id,
+          :iam_group_name,
+          :authoritative
+        )
+      end
+
+    end
+  end
 end
+
+add_admin_route 'mozilla_iam.mappings.title', 'mozilla-iam.mappings'
 
 register_asset 'stylesheets/hide-sign-up.scss'
 

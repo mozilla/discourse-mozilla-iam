@@ -1,0 +1,25 @@
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Discourse Group</th>
+      <th>IAM Group</th>
+      <th>Authoritative?</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each model as |mapping|}}
+      <tr>
+        <td>{{#link-to 'adminPlugins.mozilla-iam.mappings.edit' mapping}}{{mapping.id}}{{/link-to}}</td>
+        <td>{{mapping.group_name}}</td>
+        <td>{{mapping.iam_group_name}}</td>
+        <td>{{mapping.authoritative}}</td>
+      </tr>
+    {{/each}}
+  </tbody>
+  <div class='buttons'>
+    <button {{action 'new'}} class='btn btn-primary'>{{i18n 'admin.groups.new'}}</button>
+    <button {{action 'refresh'}} class='btn'>{{fa-icon 'refresh'}}{{i18n 'admin.groups.refresh'}}</button>
+    <span class="status {{unless status 'hidden'}}">{{status}}</span>
+  </div>
+</table>
