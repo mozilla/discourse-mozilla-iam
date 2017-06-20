@@ -36,10 +36,8 @@ module ::MozillaIAM
         ::PluginStore.set('mozilla-iam', 'logout_delay', logout_delay)
         Rails.cache.write('mozilla-iam/logout_delay', logout_delay)
 
-        uid = payload['sub']
         auth_token[:session][:mozilla_iam] = {
-          last_refreshed: Time.now,
-          uid: uid
+          last_refresh: Time.now
         }
 
         result = Auth::Result.new
@@ -48,10 +46,11 @@ module ::MozillaIAM
         result.user = user = User.find_by_email(email)
         result.email_valid = payload['email_verified']
         result.name = payload['name']
+        uid = payload['sub']
         result.extra_data = { uid: uid }
 
         if user
-          Profile.new(result.user, uid).update_groups
+          Profile.new(user, uid).refresh
         end
 
         result
@@ -65,7 +64,8 @@ module ::MozillaIAM
     end
 
     def after_create_account(user, auth)
-      Profile.new(user, auth[:extra_data][:uid]).update_groups
+      uid = auth[:extra_data][:uid]
+      Profile.new(user, uid).refresh
     end
 
     def register_middleware(omniauth)
@@ -118,8 +118,7 @@ module ::MozillaIAM
   module ApplicationExtensions
     def check_iam_session
       begin
-        last_refresh = session[:mozilla_iam].try(:[], :last_refreshed)
-        refresh_delay = 900 # == 60 * 15
+        last_refresh = session[:mozilla_iam].try(:[], :last_refresh)
         logout_delay =
           Rails.cache.fetch('mozilla-iam/logout_delay') do
             ::PluginStore.get('mozilla-iam', 'logout_delay')
@@ -129,7 +128,7 @@ module ::MozillaIAM
         if last_refresh + logout_delay < Time.now
           reset_session
           log_off_user
-        elsif last_refresh + refresh_delay < Time.now
+        else
           refresh_iam_session
         end
       rescue => e
@@ -140,13 +139,7 @@ module ::MozillaIAM
     end
 
     def refresh_iam_session
-      uid = session[:mozilla_iam][:uid]
-      if uid
-        Profile.new(current_user, uid).update_groups
-        session[:mozilla_iam][:last_refreshed] = Time.now
-      else
-        session[:mozilla_iam] = nil
-      end
+      session[:mozilla_iam][:last_refresh] = Profile.refresh(current_user)
     end
   end
 
@@ -157,6 +150,9 @@ module ::MozillaIAM
         token: access_token,
         domain: SiteSetting.auth0_domain
       )
+
+      Rails.logger.info("Auth0 API query for user_id: #{uid}")
+
       auth0.user(uid)['app_metadata']
     end
 
@@ -203,18 +199,52 @@ module ::MozillaIAM
   end
 
   class Profile
+    def self.refresh(user)
+      uid = get(user, :uid)
+      return if uid.blank?
+      Profile.new(user, uid).refresh
+    end
+
     def initialize(user, uid)
       @user = user
-      @uid = uid
+      @uid = set(:uid, uid)
     end
+
+    def refresh
+      DistributedMutex.synchronize("mozilla_iam_refresh_#{@user.id}") do
+        return last_refresh unless should_refresh?
+        update_groups
+        set_last_refresh(Time.now)
+      end
+    end
+
+    private
 
     def profile
       @profile ||= API.user_profile(@uid)
     end
 
-    def update_groups
-      return unless profile
+    def last_refresh
+      @last_refresh ||=
+        if time = get(:last_refresh)
+          Time.parse(time)
+        end
+    end
 
+    def set_last_refresh(time)
+      @last_refresh = set(:last_refresh, time)
+    end
+
+    def should_refresh?
+      return true unless last_refresh
+      if Rails.env.production?
+        Time.now > last_refresh + 900
+      else
+        Time.now > last_refresh + 15
+      end
+    end
+
+    def update_groups
       GroupMapping.all.each do |mapping|
         if mapping.authoritative
           in_group =
@@ -242,6 +272,39 @@ module ::MozillaIAM
     def remove_from_group(group)
       group.users.delete(@user)
     end
+
+    def self.get(user, key)
+      user.custom_fields["mozilla_iam_#{key}"]
+    end
+
+    def get(key)
+      self.class.get(@user, key)
+    end
+
+    def self.set(user, key, value)
+      user.custom_fields["mozilla_iam_#{key}"] = value
+      user.save_custom_fields
+      value
+    end
+
+    def set(key, value)
+      self.class.set(@user, key, value)
+    end
+  end
+
+  module PostAlerterExtensions
+    def create_notification(user, type, post, opts = {})
+      Profile.refresh(user) if post.topic.category.read_restricted
+      super(user, type, post, opts)
+    end
+  end
+
+  module UserNotificationsExtensions
+    def notification_email(user, opts)
+      post = opts[:post]
+      Profile.refresh(user) if post.topic.category.read_restricted
+      super(user, opts)
+    end
   end
 end
 
@@ -252,6 +315,9 @@ after_initialize do
   ApplicationController.class_eval do
     before_filter :check_iam_session
   end
+
+  PostAlerter.prepend MozillaIAM::PostAlerterExtensions
+  UserNotifications.prepend MozillaIAM::UserNotificationsExtensions
 
   module ::MozillaIAM
     class Engine < ::Rails::Engine
