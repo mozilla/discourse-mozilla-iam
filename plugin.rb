@@ -6,12 +6,6 @@
 
 gem 'omniauth-auth0', '2.0.0'
 
-gem 'netrc', '0.11.0', require: false
-gem 'domain_name', '0.5.20170404', require: false
-gem 'http-cookie', '1.0.3', require: false
-gem 'rest-client', '1.8.0', require: false
-gem 'auth0', '4.1.0'
-
 require 'jwt'
 require 'faraday'
 require 'multi_json'
@@ -144,57 +138,75 @@ module ::MozillaIAM
   end
 
   class API
-    def self.user_profile(uid)
-      auth0 = Auth0Client.new(
-        client_id: SiteSetting.auth0_client_id,
-        token: access_token,
-        domain: SiteSetting.auth0_domain
-      )
+    class << self
 
-      Rails.logger.info("Auth0 API query for user_id: #{uid}")
-
-      auth0.user(uid)['app_metadata']
-    end
-
-    def self.access_token
-      api_creds = ::PluginStore.get('mozilla-iam', 'api_creds')
-      if api_creds.nil? || api_creds[:exp] < Time.now.to_i + 60
-        refresh_token
-      else
-        api_creds[:access_token]
+      def user(uid)
+        Rails.logger.info("Auth0 API query for user_id: #{uid}")
+        profile = get("users/#{uid}", fields: 'app_metadata')
+        { app_metadata: {} }.merge(profile)[:app_metadata]
       end
-    end
 
-    def self.refresh_token
-      token = fetch_token
-      payload = verify_token(token)
-      ::PluginStore.set('mozilla-iam', 'api_creds', { access_token: token, exp: payload['exp'] })
-      token
-    end
+      private
 
-    def self.fetch_token
-      response =
-        Faraday.post(
-          'https://' + SiteSetting.auth0_domain + '/oauth/token',
-          {
-            grant_type: 'client_credentials',
-            client_id: SiteSetting.auth0_client_id,
-            client_secret: SiteSetting.auth0_client_secret,
-            audience: 'https://' + SiteSetting.auth0_domain + '/api/v2/'
-          }
-        )
-      MultiJson.load(response.body)['access_token']
-    end
+      def get(path, params = false)
+        path = URI.encode(path)
+        uri = URI("https://#{SiteSetting.auth0_domain}/api/v2/#{path}")
+        uri.query = URI.encode_www_form(params) if params
 
-    def self.verify_token(token)
-      payload, header =
-        JWT.decode(
-          token,
-          aud: 'https://' + SiteSetting.auth0_domain + '/api/v2/',
-          sub: SiteSetting.auth0_client_id + '@clients',
-          verify_sub: true
-        )
-      payload
+        req = Net::HTTP::Get.new(uri)
+        req['Authorization'] = "Bearer #{access_token}"
+
+        res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
+          http.request(req)
+        end
+
+        if res.code == '200'
+          MultiJson.load(res.body, symbolize_keys: true)
+        else
+          {}
+        end
+      end
+
+      def access_token
+        api_creds = ::PluginStore.get('mozilla-iam', 'api_creds')
+        if api_creds.nil? || api_creds[:exp] < Time.now.to_i + 60
+          refresh_token
+        else
+          api_creds[:access_token]
+        end
+      end
+
+      def refresh_token
+        token = fetch_token
+        payload = verify_token(token)
+        ::PluginStore.set('mozilla-iam', 'api_creds', { access_token: token, exp: payload['exp'] })
+        token
+      end
+
+      def fetch_token
+        response =
+          Faraday.post(
+            'https://' + SiteSetting.auth0_domain + '/oauth/token',
+            {
+              grant_type: 'client_credentials',
+              client_id: SiteSetting.auth0_client_id,
+              client_secret: SiteSetting.auth0_client_secret,
+              audience: 'https://' + SiteSetting.auth0_domain + '/api/v2/'
+            }
+          )
+        MultiJson.load(response.body)['access_token']
+      end
+
+      def verify_token(token)
+        payload, header =
+          JWT.decode(
+            token,
+            aud: 'https://' + SiteSetting.auth0_domain + '/api/v2/',
+            sub: SiteSetting.auth0_client_id + '@clients',
+            verify_sub: true
+          )
+        payload
+      end
     end
   end
 
@@ -221,7 +233,7 @@ module ::MozillaIAM
     private
 
     def profile
-      @profile ||= API.user_profile(@uid)
+      @profile ||= API.user(@uid)
     end
 
     def last_refresh
@@ -248,11 +260,11 @@ module ::MozillaIAM
       GroupMapping.all.each do |mapping|
         if mapping.authoritative
           in_group =
-            profile['authoritativeGroups'].any? do |authoritative_group|
-              authoritative_group['name'] == mapping.iam_group_name
+            profile[:authoritativeGroups]&.any? do |authoritative_group|
+              authoritative_group[:name] == mapping.iam_group_name
             end
         else
-          in_group = profile['groups'].include?(mapping.iam_group_name)
+          in_group = profile[:groups]&.include?(mapping.iam_group_name)
         end
 
         if in_group
