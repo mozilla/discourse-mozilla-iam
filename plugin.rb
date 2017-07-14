@@ -37,14 +37,14 @@ module ::MozillaIAM
         result = Auth::Result.new
 
         result.email = email = payload['email']
-        result.user = user = User.find_by_email(email)
-        result.email_valid = payload['email_verified']
+        result.email_valid = email_valid = payload['email_verified']
+        result.user = user = User.find_by_email(email) if email_valid
         result.name = payload['name']
         uid = payload['sub']
         result.extra_data = { uid: uid }
 
         if user
-          Profile.new(user, uid).refresh
+          Profile.new(user, uid).force_refresh
         end
 
         result
@@ -59,7 +59,7 @@ module ::MozillaIAM
 
     def after_create_account(user, auth)
       uid = auth[:extra_data][:uid]
-      Profile.new(user, uid).refresh
+      Profile.new(user, uid).force_refresh
     end
 
     def register_middleware(omniauth)
@@ -78,34 +78,38 @@ module ::MozillaIAM
   end
 
   class JWKS
-    def self.public_key(jwt)
-      header, payload = ::JWT.decoded_segments(jwt)
-      key = jwks['keys'].find { |key| key['kid'] == header['kid'] }
-      cert = OpenSSL::X509::Certificate.new(Base64.decode64(key['x5c'][0]))
-      cert.public_key
-    end
+    class << self
+      def public_key(jwt)
+        header, payload = ::JWT.decoded_segments(jwt)
+        key = jwks['keys'].find { |key| key['kid'] == header['kid'] }
+        cert = OpenSSL::X509::Certificate.new(Base64.decode64(key['x5c'][0]))
+        cert.public_key
+      end
 
-    def self.jwks
-      response = Faraday.get('https://' + SiteSetting.auth0_domain + '/.well-known/jwks.json')
-      MultiJson.load(response.body)
+      def jwks
+        response = Faraday.get('https://' + SiteSetting.auth0_domain + '/.well-known/jwks.json')
+        MultiJson.load(response.body)
+      end
     end
   end
 
   class JWT
-    def self.decode(token, opts)
-      public_key = JWKS.public_key(token)
-      ::JWT.decode(
-        token,
-        public_key,
-        true,
-        {
-          algorithm: 'RS256',
-          iss: 'https://' + SiteSetting.auth0_domain + '/',
-          verify_iss: true,
-          verify_iat: true,
-          verify_aud: true
-        }.merge(opts)
-      )
+    class << self
+      def decode(token, opts)
+        public_key = JWKS.public_key(token)
+        ::JWT.decode(
+          token,
+          public_key,
+          true,
+          {
+            algorithm: 'RS256',
+            iss: 'https://' + SiteSetting.auth0_domain + '/',
+            verify_iss: true,
+            verify_iat: true,
+            verify_aud: true
+          }.merge(opts)
+        )
+      end
     end
   end
 
@@ -223,8 +227,12 @@ module ::MozillaIAM
     end
 
     def refresh
+      return last_refresh unless should_refresh?
+      force_refresh
+    end
+
+    def force_refresh
       DistributedMutex.synchronize("mozilla_iam_refresh_#{@user.id}") do
-        return last_refresh unless should_refresh?
         update_groups
         set_last_refresh(Time.now)
       end
@@ -249,11 +257,7 @@ module ::MozillaIAM
 
     def should_refresh?
       return true unless last_refresh
-      if Rails.env.production?
-        Time.now > last_refresh + 900
-      else
-        Time.now > last_refresh + 15
-      end
+      Time.now > last_refresh + 900
     end
 
     def update_groups
@@ -315,7 +319,11 @@ module ::MozillaIAM
     def notification_email(user, opts)
       post = opts[:post]
       Profile.refresh(user) if post.topic.category.read_restricted
-      super(user, opts)
+      if Guardian.new(user).can_see?(post)
+        super(user, opts)
+      else
+        false
+      end
     end
   end
 end
