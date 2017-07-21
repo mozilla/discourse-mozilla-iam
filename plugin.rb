@@ -307,25 +307,6 @@ module ::MozillaIAM
       self.class.set(@user, key, value)
     end
   end
-
-  module PostAlerterExtensions
-    def create_notification(user, type, post, opts = {})
-      Profile.refresh(user) if post.topic.category.read_restricted
-      super(user, type, post, opts)
-    end
-  end
-
-  module UserNotificationsExtensions
-    def notification_email(user, opts)
-      post = opts[:post]
-      Profile.refresh(user) if post.topic.category.read_restricted
-      if Guardian.new(user).can_see?(post)
-        super(user, opts)
-      else
-        false
-      end
-    end
-  end
 end
 
 after_initialize do
@@ -336,8 +317,19 @@ after_initialize do
     before_filter :check_iam_session
   end
 
-  PostAlerter.prepend MozillaIAM::PostAlerterExtensions
-  UserNotifications.prepend MozillaIAM::UserNotificationsExtensions
+  DiscourseEvent.on(:before_create_notification) do |user, type, post, opts|
+    MozillaIAM::Profile.refresh(user) if post.topic.category.read_restricted
+  end
+
+  refresh_users = lambda do |users, post|
+    users.each do |user|
+      MozillaIAM::Profile.refresh(user) if post.topic.category.read_restricted
+    end
+  end
+
+  DiscourseEvent.on(:before_create_notifications_for_users, &refresh_users)
+
+  DiscourseEvent.on(:notify_mailing_list_subscribers, &refresh_users)
 
   module ::MozillaIAM
     class Engine < ::Rails::Engine
