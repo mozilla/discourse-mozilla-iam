@@ -35,7 +35,7 @@ module IAMHelpers
   def create_id_token(user, additional_payload = {}, additional_header = {})
     payload = {
       name: user[:name],
-      email: user[:email],
+      email: user[:email] || user.email,
       sub: create_uid(user[:username]),
       email_verified: true,
       iss: 'https://auth.mozilla.auth0.com/',
