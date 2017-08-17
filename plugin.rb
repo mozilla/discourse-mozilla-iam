@@ -358,6 +358,11 @@ after_initialize do
     belongs_to :group
   end
 
+  Group.class_eval do
+    has_many :mappings, class_name: "MozillaIAM::GroupMapping",
+                        dependent:  :destroy
+  end
+
   class MozillaIAM::GroupMappingSerializer < ApplicationSerializer
     attributes :id,
                :group_name,
