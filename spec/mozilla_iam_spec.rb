@@ -79,4 +79,39 @@ describe MozillaIAM do
       end
     end
   end
+
+  context 'new private message' do
+    let(:author) { Fabricate(:user) }
+    let(:user) { Fabricate(:user) }
+    let(:post) do
+      PostCreator.create(author, title: 'private message test',
+                                 raw: 'this is my private message',
+                                 archetype: Archetype.private_message,
+                                 target_usernames: user.username)
+    end
+    let(:uid) { create_uid(user.username) }
+    let(:last_refresh) { Time.now - 16.minutes }
+
+    before do
+      NotificationEmailer.enable
+      TopicUser.change(user.id, post.topic.id, notification_level: TopicUser.notification_levels[:watching])
+      user.custom_fields['mozilla_iam_uid'] = uid
+      user.custom_fields['mozilla_iam_last_refresh'] = last_refresh
+      user.save_custom_fields
+    end
+
+    it 'does not refresh the user profile' do
+      user.clear_custom_fields
+      expect(Time.parse(user.custom_fields['mozilla_iam_last_refresh'])).to be_within(5.seconds).of last_refresh
+    end
+
+    it 'alerts the user' do
+      expect(user.notifications.count).to eq(1)
+    end
+
+    it 'emails the user' do
+      expect(EmailLog.where(user: user, post: post, skipped: false, email_type: 'user_private_message').count).to eq(1)
+    end
+  end
+
 end

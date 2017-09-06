@@ -1,10 +1,10 @@
 DiscourseEvent.on(:before_create_notification) do |user, type, post, opts|
-  MozillaIAM::Profile.refresh(user) if post.topic.category.read_restricted
+  MozillaIAM::Profile.refresh(user) if post.topic.category&.read_restricted
 end
 
 refresh_users = lambda do |users, post|
   users.each do |user|
-    MozillaIAM::Profile.refresh(user) if post.topic.category.read_restricted
+    MozillaIAM::Profile.refresh(user) if post.topic.category&.read_restricted
   end
 end
 
