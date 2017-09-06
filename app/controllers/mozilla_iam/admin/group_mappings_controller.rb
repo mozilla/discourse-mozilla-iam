@@ -1,5 +1,5 @@
 module MozillaIAM
-  class Admin::GroupMappingsController < ::Admin::AdminController
+  class MozillaIAM::Admin::GroupMappingsController < ::Admin::AdminController
 
     def index
       mappings = GroupMapping.all
