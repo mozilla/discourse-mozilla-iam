@@ -1,4 +1,4 @@
 ApplicationController.include MozillaIAM::ApplicationExtensions
 ApplicationController.class_eval do
-  before_filter :check_iam_session
+  before_action :check_iam_session
 end

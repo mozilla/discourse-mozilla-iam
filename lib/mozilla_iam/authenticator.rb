@@ -9,7 +9,7 @@ module MozillaIAM
             aud: SiteSetting.auth0_client_id
           )
 
-        logout_delay = payload['exp'] - payload['iat']
+        logout_delay = payload['exp'].to_i - payload['iat'].to_i
         ::PluginStore.set('mozilla-iam', 'logout_delay', logout_delay)
         Rails.cache.write('mozilla-iam/logout_delay', logout_delay)
 

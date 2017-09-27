@@ -1,4 +1,4 @@
-class CreateGroupMappings < ActiveRecord::Migration
+class CreateGroupMappings < ActiveRecord::Migration[4.2]
   def change
     create_table :mozilla_iam_group_mappings do |t|
       t.integer :group_id, null: false

@@ -11,7 +11,7 @@ describe TopicsController do
       user.custom_fields['mozilla_iam_last_refresh'] = last_refresh
       session[:mozilla_iam] = { last_refresh: last_refresh }
 
-      get :show, id: 666
+      get :show, params: { id: 666 }, format: :json
 
       expect(session[:mozilla_iam][:last_refresh]).to be_within(5.seconds).of last_refresh
     end
@@ -25,7 +25,7 @@ describe TopicsController do
       user.custom_fields['mozilla_iam_last_refresh'] = last_refresh
       session[:mozilla_iam] = { last_refresh: last_refresh }
 
-      get :show, id: 666
+      get :show, params: { id: 666 }, format: :json
       expect(session[:mozilla_iam][:last_refresh]).to be_within(5.seconds).of Time.now
     end
 
@@ -40,7 +40,7 @@ describe TopicsController do
 
       expect(session['current_user_id']).to be
 
-      get :show, id: 666
+      get :show, params: { id: 666 }, format: :json
 
       expect(session['current_user_id']).to be_nil
     end
@@ -51,7 +51,7 @@ describe TopicsController do
       session[:mozilla_iam] = { last_refresh: 'not a number' }
       expect(session['current_user_id']).to be
 
-      get :show, id: 666 rescue
+      get :show, params: { id: 666 }, format: :json rescue
       expect(session['current_user_id']).to be_nil
     end
   end
