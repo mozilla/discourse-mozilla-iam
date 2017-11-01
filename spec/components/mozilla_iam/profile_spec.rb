@@ -32,13 +32,18 @@ describe MozillaIAM::Profile do
   end
 
   context '#update_groups' do
-    it 'should remove a user from a mapped group' do
-      user = Fabricate(:user)
-      uid = create_uid(user.username)
-      group = Fabricate(:group, users: [user])
+    let(:user) { Fabricate(:user) }
+    let(:uid) { create_uid(user.username) }
+    let(:group) { Fabricate(:group) }
+
+    before do
       MozillaIAM::GroupMapping.new(iam_group_name: 'iam_group',
                                    authoritative: false,
                                    group: group).save!
+    end
+
+    it 'should remove a user from a mapped group' do
+      group.users << user
 
       expect(group.users.count).to eq 1
 
@@ -49,19 +54,39 @@ describe MozillaIAM::Profile do
     end
 
     it 'should add a user to a mapped group' do
-      user = Fabricate(:user)
-      uid = create_uid(user.username)
-      group = Fabricate(:group)
-      MozillaIAM::GroupMapping.new(iam_group_name: 'iam_group',
-                                   authoritative: false,
-                                   group: group).save!
-
       expect(group.users.count).to eq 0
 
       stub_api_users_request(uid, groups: ['iam_group'])
 
       MozillaIAM::Profile.new(user, uid).refresh
       expect(group.users.count).to eq 1
+    end
+
+    it 'should work if groups attribute is undefined' do
+      expect(group.users.count).to eq 0
+
+      stub_api_users_request(uid, {})
+
+      MozillaIAM::Profile.new(user, uid).refresh
+      expect(group.users.count).to eq 0
+    end
+
+    it 'should work if groups attribute is an empty string' do
+      expect(group.users.count).to eq 0
+
+      stub_api_users_request(uid, groups: '')
+
+      MozillaIAM::Profile.new(user, uid).refresh
+      expect(group.users.count).to eq 0
+    end
+
+    it 'should work if groups attribute is "None"' do
+      expect(group.users.count).to eq 0
+
+      stub_api_users_request(uid, groups: 'None')
+
+      MozillaIAM::Profile.new(user, uid).refresh
+      expect(group.users.count).to eq 0
     end
   end
 end
