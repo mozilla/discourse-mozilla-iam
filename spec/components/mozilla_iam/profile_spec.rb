@@ -42,7 +42,7 @@ describe MozillaIAM::Profile do
 
       expect(group.users.count).to eq 1
 
-      stub_api_users_request(uid, groups: [])
+      stub_people_api_profile_request(uid, groups: [])
 
       MozillaIAM::Profile.new(user, uid).refresh
       expect(group.users.count).to eq 0
@@ -58,7 +58,7 @@ describe MozillaIAM::Profile do
 
       expect(group.users.count).to eq 0
 
-      stub_api_users_request(uid, groups: ['iam_group'])
+      stub_people_api_profile_request(uid, groups: ['iam_group'])
 
       MozillaIAM::Profile.new(user, uid).refresh
       expect(group.users.count).to eq 1

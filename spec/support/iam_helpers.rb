@@ -71,13 +71,13 @@ module IAMHelpers
     authenticate_with_id_token create_id_token(user)
   end
 
-  def stub_oauth_token_request
+  def stub_oauth_token_request(aud)
     stub_jwks_request
 
     payload = {
       sub: 'the_best_client_id@clients',
       iss: 'https://auth.mozilla.auth0.com/',
-      aud: 'https://auth.mozilla.auth0.com/api/v2/',
+      aud: aud,
       exp: Time.now.to_i + 7.days,
       iat: Time.now.to_i
     }
@@ -93,10 +93,10 @@ module IAMHelpers
       .to_return(status: 200, body: body)
   end
 
-  def stub_api_users_request(uid, app_metadata)
-    stub_oauth_token_request
+  def stub_people_api_profile_request(uid, profile)
+    stub_oauth_token_request('https://person-api.sso.mozilla.com')
 
-    stub_request(:get, "https://auth.mozilla.auth0.com/api/v2/users/#{uid}?fields=app_metadata")
-      .to_return(status: 200, body: MultiJson.dump(app_metadata: app_metadata))
+    stub_request(:get, "https://uhbz4h3wa8.execute-api.us-west-2.amazonaws.com/prod/profile/#{uid}")
+      .to_return(status: 200, body: MultiJson.dump(body: MultiJson.dump(profile)))
   end
 end
