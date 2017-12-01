@@ -4,6 +4,7 @@ en:
       site_settings:
         categories:
           auth0: 'Auth0'
+          mozilla_iam: 'Mozilla IAM'
     mozilla_iam:
       mappings:
         title: 'IAM Group Mappings'
