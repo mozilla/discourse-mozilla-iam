@@ -54,12 +54,33 @@ describe MozillaIAM::Profile do
     end
   end
 
+  context "#groups" do
+    it "merges app_metadata.groups into groups from management api" do
+      profile.expects(:mgmt_profile).at_least_once.returns(groups: ['a'], app_metadata: { groups: ['b', 'a', 'c'] })
+      expect(profile.groups).to eq ['a', 'b', 'c']
+    end
 
-  context "#profile" do
+    it "returns app_metadata.groups when groups is nil" do
+      profile.expects(:mgmt_profile).at_least_once.returns(app_metadata: { groups: ['a', 'b', 'c'] })
+      expect(profile.groups).to eq ['a', 'b', 'c']
+    end
+
+    it "returns groups when app_metadata is nil" do
+      profile.expects(:mgmt_profile).at_least_once.returns(groups: ['a', 'b', 'c'])
+      expect(profile.groups).to eq ['a', 'b', 'c']
+    end
+
+    it "returns empty array when groups and app_metadata are nil" do
+      profile.expects(:mgmt_profile).at_least_once.returns({})
+      expect(profile.groups).to eq []
+    end
+  end
+
+  context "#mgmt_profile" do
     it "returns a user's profile from the Management API and stores it in an instance variable" do
       MozillaIAM::ManagementAPI.any_instance.expects(:profile).with("uid").returns("profile")
-      expect(profile.send(:profile)).to eq "profile"
-      expect(profile.instance_variable_get(:@profile)).to eq "profile"
+      expect(profile.send(:mgmt_profile)).to eq "profile"
+      expect(profile.instance_variable_get(:@mgmt_profile)).to eq "profile"
     end
   end
 
@@ -106,10 +127,9 @@ describe MozillaIAM::Profile do
 
   context '#update_groups' do
     it 'should remove a user from a mapped group' do
-      profile.expects(:profile).returns(groups: [])
+      profile.expects(:groups).returns([])
       group = Fabricate(:group, users: [user])
       MozillaIAM::GroupMapping.new(iam_group_name: 'iam_group',
-                                   authoritative: false,
                                    group: group).save!
 
       expect(group.users.count).to eq 1
@@ -120,10 +140,9 @@ describe MozillaIAM::Profile do
     end
 
     it 'should add a user to a mapped group' do
-      profile.expects(:profile).returns(groups: ['iam_group'])
+      profile.expects(:groups).returns(['iam_group'])
       group = Fabricate(:group)
       MozillaIAM::GroupMapping.new(iam_group_name: 'iam_group',
-                                   authoritative: false,
                                    group: group).save!
 
       expect(group.users.count).to eq 0

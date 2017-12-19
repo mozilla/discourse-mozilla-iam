@@ -15,7 +15,6 @@ describe MozillaIAM do
 
     before do
       MozillaIAM::GroupMapping.new(iam_group_name: 'iam_group',
-                                   authoritative: false,
                                    group: group).save!
       TopicUser.change(user.id, topic.id, notification_level: TopicUser.notification_levels[:watching])
       user.custom_fields['mozilla_iam_uid'] = uid

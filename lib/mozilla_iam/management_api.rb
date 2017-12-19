@@ -10,8 +10,7 @@ module MozillaIAM
     end
 
     def profile(uid)
-      profile = get("users/#{uid}", fields: "app_metadata")
-      { app_metadata: {} }.merge(profile)[:app_metadata]
+      get("users/#{uid}")
     end
 
   end

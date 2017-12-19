@@ -23,10 +23,14 @@ module MozillaIAM
       end
     end
 
+    def groups
+      Array(mgmt_profile[:groups]) | Array(mgmt_profile.dig(:app_metadata, :groups))
+    end
+
     private
 
-    def profile
-      @profile ||= ManagementAPI.new.profile(@uid)
+    def mgmt_profile
+      @mgmt_profile ||= ManagementAPI.new.profile(@uid)
     end
 
     def last_refresh
@@ -47,16 +51,7 @@ module MozillaIAM
 
     def update_groups
       GroupMapping.all.each do |mapping|
-        if mapping.authoritative
-          in_group =
-            profile[:authoritativeGroups]&.any? do |authoritative_group|
-              authoritative_group[:name] == mapping.iam_group_name
-            end
-        else
-          in_group = profile[:groups]&.include?(mapping.iam_group_name)
-        end
-
-        if in_group
+        if groups.include?(mapping.iam_group_name)
           add_to_group(mapping.group)
         else
           remove_from_group(mapping.group)

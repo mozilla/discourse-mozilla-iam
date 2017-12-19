@@ -14,13 +14,13 @@ describe MozillaIAM::ManagementAPI do
   end
 
   context "#profile" do
-    it "returns the app_metadata for a specific profile" do
-      api.expects(:get).with("users/uid", fields: "app_metadata").returns(app_metadata: "app_metadata")
-      expect(api.profile("uid")).to eq "app_metadata"
+    it "returns the management api profile" do
+      api.expects(:get).with("users/uid").returns("profile")
+      expect(api.profile("uid")).to eq "profile"
     end
 
     it "returns an empty hash if a profile doesn't exist" do
-      api.expects(:get).with("users/uid", fields: "app_metadata").returns({})
+      api.expects(:get).with("users/uid").returns({})
       expect(api.profile("uid")).to eq({})
     end
   end

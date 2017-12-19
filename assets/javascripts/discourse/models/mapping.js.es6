@@ -4,8 +4,7 @@ const Mapping = Ember.Object.extend({
   asJSON () {
     return {
       group_name: this.get('group_name'),
-      iam_group_name: this.get('iam_group_name'),
-      authoritative: this.get('authoritative')
+      iam_group_name: this.get('iam_group_name')
     }
   },
 

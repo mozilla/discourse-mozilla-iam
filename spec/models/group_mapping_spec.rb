@@ -3,9 +3,7 @@ require_relative '../iam_helper'
 describe MozillaIAM::GroupMapping do
   it 'should be destroyed when associated group is destroyed' do
     group = Fabricate(:group)
-    mapping = MozillaIAM::GroupMapping.new(iam_group_name: 'iam_group',
-                                 authoritative: false,
-                                 group: group)
+    mapping = MozillaIAM::GroupMapping.new(iam_group_name: 'iam_group', group: group)
     mapping.save!
     mapping.reload
 
