@@ -24,7 +24,7 @@ describe MozillaIAM do
     end
 
     context 'when user in correct IAM group' do
-      before { stub_people_api_profile_request(uid, groups: ['iam_group']) }
+      before { stub_management_api_profile_request(uid, groups: ['iam_group']) }
 
       it 'refreshes the user profile' do
         PostAlerter.post_created(reply)
@@ -52,7 +52,7 @@ describe MozillaIAM do
     end
 
     context 'when user removed from IAM group' do
-      before { stub_people_api_profile_request(uid, groups: []) }
+      before { stub_management_api_profile_request(uid, groups: []) }
 
       it 'refreshes the user profile' do
         PostAlerter.post_created(reply)

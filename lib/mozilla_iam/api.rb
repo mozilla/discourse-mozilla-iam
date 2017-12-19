@@ -5,7 +5,9 @@ module MozillaIAM
       @client_secret = config[:client_secret] || SiteSetting.auth0_client_secret
       @token_endpoint = config[:token_endpoint] || "https://#{SiteSetting.auth0_domain}/oauth/token"
       @url = config[:url]
+      raise ArgumentError, "no url in config" unless @url
       @aud = config[:aud]
+      raise ArgumentError, "no aud in config" unless @aud
     end
 
     private

@@ -26,7 +26,7 @@ module MozillaIAM
     private
 
     def profile
-      @profile ||= PersonAPI.new.profile(@uid)
+      @profile ||= ManagementAPI.new.profile(@uid)
     end
 
     def last_refresh

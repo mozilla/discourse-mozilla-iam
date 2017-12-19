@@ -32,6 +32,10 @@ module IAMHelpers
       .to_return(status: 200, body: create_jwks)
   end
 
+  def create_jwt(payload, header)
+    JWT.encode(payload, private_key, 'RS256', header)
+  end
+
   def create_id_token(user, additional_payload = {}, additional_header = {})
     payload = {
       name: user[:name],
@@ -48,7 +52,7 @@ module IAMHelpers
       kid: 'the_best_key'
     }.merge(additional_header)
 
-    JWT.encode(payload, private_key, 'RS256', header_fields)
+    create_jwt(payload, header_fields)
   end
 
   def create_uid(username)
@@ -98,5 +102,12 @@ module IAMHelpers
 
     stub_request(:get, "https://uhbz4h3wa8.execute-api.us-west-2.amazonaws.com/prod/profile/#{uid}")
       .to_return(status: 200, body: MultiJson.dump(body: MultiJson.dump(profile)))
+  end
+
+  def stub_management_api_profile_request(uid, profile)
+    stub_oauth_token_request('https://auth.mozilla.auth0.com/api/v2/')
+
+    stub_request(:get, "https://auth.mozilla.auth0.com/api/v2/users/#{uid}?fields=app_metadata")
+      .to_return(status: 200, body: MultiJson.dump(app_metadata: profile))
   end
 end
