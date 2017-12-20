@@ -15,7 +15,6 @@ describe MozillaIAM do
 
     before do
       MozillaIAM::GroupMapping.new(iam_group_name: 'iam_group',
-                                   authoritative: false,
                                    group: group).save!
       TopicUser.change(user.id, topic.id, notification_level: TopicUser.notification_levels[:watching])
       user.custom_fields['mozilla_iam_uid'] = uid
@@ -24,7 +23,7 @@ describe MozillaIAM do
     end
 
     context 'when user in correct IAM group' do
-      before { stub_api_users_request(uid, groups: ['iam_group']) }
+      before { stub_management_api_profile_request(uid, groups: ['iam_group']) }
 
       it 'refreshes the user profile' do
         PostAlerter.post_created(reply)
@@ -52,7 +51,7 @@ describe MozillaIAM do
     end
 
     context 'when user removed from IAM group' do
-      before { stub_api_users_request(uid, groups: []) }
+      before { stub_management_api_profile_request(uid, groups: []) }
 
       it 'refreshes the user profile' do
         PostAlerter.post_created(reply)

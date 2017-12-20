@@ -4,7 +4,6 @@
       <th>ID</th>
       <th>Discourse Group</th>
       <th>IAM Group</th>
-      <th>Authoritative?</th>
     </tr>
   </thead>
   <tbody>
@@ -13,7 +12,6 @@
         <td>{{#link-to 'adminPlugins.mozilla-iam.mappings.edit' mapping}}{{mapping.id}}{{/link-to}}</td>
         <td>{{mapping.group_name}}</td>
         <td>{{mapping.iam_group_name}}</td>
-        <td>{{mapping.authoritative}}</td>
       </tr>
     {{/each}}
   </tbody>

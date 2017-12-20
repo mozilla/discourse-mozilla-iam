@@ -11,7 +11,6 @@ module MozillaIAM
 
     def create
       mapping = GroupMapping.new(group_mappings_params)
-      mapping.authoritative = false if params[:authoritative].nil?
       mapping.group = Group.find_by(name: params[:group_name])
       mapping.save!
       render json: success_json
@@ -40,8 +39,7 @@ module MozillaIAM
     def group_mappings_params
       params.permit(
         :id,
-        :iam_group_name,
-        :authoritative
+        :iam_group_name
       )
     end
 

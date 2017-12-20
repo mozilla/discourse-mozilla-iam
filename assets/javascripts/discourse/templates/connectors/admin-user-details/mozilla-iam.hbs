@@ -1,0 +1,26 @@
+<section class='details'>
+  <h1>Mozilla IAM</h1>
+
+  <div class='display-row'>
+    <div class='field'>User ID</div>
+    <div class='value'>
+      {{#if model.mozilla_iam.uid}}
+        {{model.mozilla_iam.uid}}
+      {{else}}
+        &mdash;
+      {{/if}}
+    </div>
+  </div>
+
+  <div class='display-row'>
+    <div class='field'>Last Refresh</div>
+    <div class='value'>
+      {{#if model.mozilla_iam.last_refresh}}
+        {{model.mozilla_iam.last_refresh}}
+      {{else}}
+        &mdash;
+      {{/if}}
+    </div>
+  </div>
+
+</section>
