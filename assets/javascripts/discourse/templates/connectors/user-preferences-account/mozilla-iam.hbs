@@ -1,0 +1,46 @@
+<div class="control-group pref-mozilla-iam-emails">
+  <label class="control-label">{{i18n 'mozilla_iam.user.email.addresses'}}</label>
+  {{#if model.email}}
+    <div class="instructions">
+      {{i18n "user.email.instructions"}}
+    </div>
+
+    <div class="controls pref-mozilla-iam-primary-email">
+      <label class="inline-label">{{i18n 'user.email.primary'}}</label>
+      {{#if model.can_edit_email}}
+        {{#link-to "preferences.email" class="btn btn-small btn-icon pad-left no-text"}}{{d-icon "pencil"}}{{/link-to}}
+      {{/if}}
+      <div class="value">
+        {{model.email}}
+      </div>
+    </div>
+    <div class="instructions">
+      {{i18n 'mozilla_iam.user.email.primary_instructions'}}<br>
+      {{i18n 'mozilla_iam.user.email.primary_instructions_further'}}
+    </div>
+
+    <div class="controls pref-mozilla-iam-secondary-emails">
+      <label class="inline-label">{{i18n 'user.email.secondary'}}</label>
+      <a href="https://mozillians.org/user/edit/#idp-profiles" target="_blank" class="btn btn-small btn-icon pad-left no-text">
+        {{d-icon "pencil"}} {{i18n 'mozillians.edit'}}
+      </a>
+      {{#if model.secondary_emails}}
+        <ul class="value">
+          {{#each model.secondary_emails as |email| }}
+            <li>{{email}}</li>
+          {{/each}}
+        </ul>
+      {{else}}
+        <div class="value">{{i18n 'mozilla_iam.user.email.no_secondary'}}</div>
+      {{/if}}
+    </div>
+    <div class="instructions">
+      {{i18n 'mozilla_iam.user.email.secondary_instructions'}}<br>
+      {{i18n 'mozilla_iam.user.email.secondary_instructions_further'}}
+    </div>
+  {{else}}
+    <div class="controls pref-mozilla-iam-check-email">
+      {{d-button action="checkEmail" actionParam=model title="admin.users.check_email.title" icon="envelope-o" label="admin.users.check_email.text"}}
+    </div>
+  {{/if}}
+</div>

@@ -8,3 +8,15 @@ en:
     mozilla_iam:
       mappings:
         title: 'IAM Group Mappings'
+  js:
+    mozillians:
+      edit: "Edit on Mozillians"
+    mozilla_iam:
+      user:
+        email:
+          addresses: "Email Addresses"
+          primary_instructions: "used to log in, receive notifications and email discourse"
+          primary_instructions_further: "make the same as your mozillians login identity to link profiles"
+          secondary_instructions: "can also be used to email discourse"
+          secondary_instructions_further: "change your mozillians contact identities to edit"
+          no_secondary: "No secondary addresses"

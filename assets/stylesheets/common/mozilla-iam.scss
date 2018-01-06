@@ -1,0 +1,22 @@
+.user-preferences {
+  .pref-email, .pref-associated-accounts {
+    display: none;
+  }
+
+  .pref-mozilla-iam-emails {
+    .control-label {
+      margin-bottom: 0;
+      line-height: 1.2;
+    }
+
+    .inline-label {
+      display: inline-block;
+      font-weight: bold;
+    }
+
+    ul {
+      margin: 0;
+      list-style: none;
+    }
+  }
+}

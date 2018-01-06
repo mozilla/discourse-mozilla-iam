@@ -18,6 +18,8 @@ require_relative 'lib/mozilla_iam'
 
 add_admin_route 'mozilla_iam.mappings.title', 'mozilla-iam.mappings'
 
+register_asset "stylesheets/common/mozilla-iam.scss"
+
 auth_provider(title: 'Mozilla',
               message: 'Log In / Sign Up',
               authenticator: MozillaIAM::Authenticator.new('auth0', trusted: true),
