@@ -10,7 +10,7 @@ auth0:
     shadowed_by_global: true
 mozilla_iam:
   mozilla_iam_person_api_url:
-    default: 'https://uhbz4h3wa8.execute-api.us-west-2.amazonaws.com/prod'
+    default: 'https://person-api.sso.mozilla.com'
     shadowed_by_global: true
   mozilla_iam_person_api_aud:
     default: 'https://person-api.sso.mozilla.com'
