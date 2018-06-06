@@ -8,6 +8,7 @@ require_relative 'mozilla_iam/authenticator'
 require_relative 'mozilla_iam/jwks'
 require_relative 'mozilla_iam/jwt'
 require_relative 'mozilla_iam/profile'
+require_relative 'mozilla_iam/omniauth_oauth2_extensions'
 
 module MozillaIAM
 end
