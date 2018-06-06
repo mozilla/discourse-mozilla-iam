@@ -2,7 +2,8 @@ require_relative '../iam_helper'
 
 describe AdminDetailedUserSerializer do
   let(:user) { Fabricate(:user) }
-  let(:json) { AdminDetailedUserSerializer.new(user, scope: Guardian.new, root:false).as_json }
+  let(:admin) { Fabricate(:admin) }
+  let(:json) { AdminDetailedUserSerializer.new(user, scope: Guardian.new(admin), root:false).as_json }
 
   describe "#mozilla_iam" do
     it "should contain 'mozilla_iam' prefixed custom fields" do

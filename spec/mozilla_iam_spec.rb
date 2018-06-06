@@ -1,6 +1,11 @@
 require_relative 'iam_helper'
 
 describe MozillaIAM do
+  before do
+    NotificationEmailer.enable
+    SiteSetting.queue_jobs = false
+  end
+  
   context 'new post in restricted category' do
 
     let(:poster) { Fabricate(:user) }
@@ -38,7 +43,6 @@ describe MozillaIAM do
       end
 
       it 'emails the user' do
-        NotificationEmailer.enable
         PostAlerter.post_created(reply)
         expect(EmailLog.where(user: user, post: reply, skipped: false, email_type: 'user_posted').count).to eq(1)
       end
@@ -66,7 +70,6 @@ describe MozillaIAM do
       end
 
       it 'does not email the user' do
-        NotificationEmailer.enable
         PostAlerter.post_created(reply)
         expect(EmailLog.where(user: user, post: reply, skipped: false, email_type: 'user_posted').count).to eq(0)
       end
@@ -92,7 +95,6 @@ describe MozillaIAM do
     let(:last_refresh) { Time.now - 16.minutes }
 
     before do
-      NotificationEmailer.enable
       TopicUser.change(user.id, post.topic.id, notification_level: TopicUser.notification_levels[:watching])
       user.custom_fields['mozilla_iam_uid'] = uid
       user.custom_fields['mozilla_iam_last_refresh'] = last_refresh

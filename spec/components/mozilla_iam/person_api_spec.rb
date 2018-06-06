@@ -9,7 +9,7 @@ describe MozillaIAM::PersonAPI do
 
   context "#initialize" do
     it "sets url and aud based on SiteSetting" do
-      expect(api.instance_variable_get(:@url)).to eq "https://person.com"
+      expect(api.instance_variable_get(:@url)).to eq "https://person.com/v1"
       expect(api.instance_variable_get(:@aud)).to eq "person.com"
     end
   end
