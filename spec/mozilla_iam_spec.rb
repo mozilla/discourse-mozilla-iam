@@ -5,7 +5,7 @@ describe MozillaIAM do
     NotificationEmailer.enable
     SiteSetting.queue_jobs = false
   end
-  
+
   context 'new post in restricted category' do
 
     let(:poster) { Fabricate(:user) }
@@ -44,13 +44,13 @@ describe MozillaIAM do
 
       it 'emails the user' do
         PostAlerter.post_created(reply)
-        expect(EmailLog.where(user: user, post: reply, skipped: false, email_type: 'user_posted').count).to eq(1)
+        expect(EmailLog.where(user: user, post: reply, email_type: 'user_posted').count).to eq(1)
       end
 
       it 'sends the user a mailing list email' do
         user.user_option.update(mailing_list_mode: true, mailing_list_mode_frequency: 1)
         Jobs::NotifyMailingListSubscribers.new.execute(post_id: reply.id)
-        expect(EmailLog.where(user: user, post: reply, skipped: false, email_type: 'mailing_list').count).to eq(1)
+        expect(EmailLog.where(user: user, post: reply, email_type: 'mailing_list').count).to eq(1)
       end
     end
 
@@ -71,13 +71,13 @@ describe MozillaIAM do
 
       it 'does not email the user' do
         PostAlerter.post_created(reply)
-        expect(EmailLog.where(user: user, post: reply, skipped: false, email_type: 'user_posted').count).to eq(0)
+        expect(EmailLog.where(user: user, post: reply, email_type: 'user_posted').count).to eq(0)
       end
 
       it 'does not send the user a mailing list email' do
         user.user_option.update(mailing_list_mode: true, mailing_list_mode_frequency: 1)
         Jobs::NotifyMailingListSubscribers.new.execute(post_id: reply.id)
-        expect(EmailLog.where(user: user, post: reply, skipped: false, email_type: 'mailing_list').count).to eq(0)
+        expect(EmailLog.where(user: user, post: reply, email_type: 'mailing_list').count).to eq(0)
       end
     end
   end
@@ -111,7 +111,7 @@ describe MozillaIAM do
     end
 
     it 'emails the user' do
-      expect(EmailLog.where(user: user, post: post, skipped: false, email_type: 'user_private_message').count).to eq(1)
+      expect(EmailLog.where(user: user, post: post, email_type: 'user_private_message').count).to eq(1)
     end
   end
 
