@@ -1,6 +1,13 @@
 require_relative '../../iam_helper'
 
 describe MozillaIAM::Authenticator do
+
+  context "#enabled?" do
+    it "returns true" do
+      expect(described_class.new('auth0', trusted: true).enabled?).to be true
+    end
+  end
+
   context '#after_authenticate' do
     it 'can authenticate a new user' do
       user = {

@@ -1,5 +1,10 @@
 module MozillaIAM
   class Authenticator < Auth::OAuth2Authenticator
+
+    def enabled?
+      true
+    end
+
     def after_authenticate(auth_token)
       begin
         id_token = auth_token[:credentials][:id_token]
