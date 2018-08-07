@@ -1,6 +1,9 @@
 Discourse + Mozilla IAM
 ===========================
 
+[![Build Status](https://travis-ci.org/mozilla/discourse-mozilla-iam.svg?branch=master)](https://travis-ci.org/mozilla/discourse-mozilla-iam)
+ [![Coverage Status](https://coveralls.io/repos/github/mozilla/discourse-mozilla-iam/badge.svg?branch=master)](https://coveralls.io/github/mozilla/discourse-mozilla-iam?branch=master)
+
 A plugin to integrate [Discourse](http://discourse.org) with Mozilla's Identity and Access Management (IAM) system.
 
 ## Running tests
