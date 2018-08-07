@@ -1,5 +1,6 @@
 require_relative 'mozilla_iam/engine'
 
+require_relative 'mozilla_iam/admin_detailed_user_serializer_extensions'
 require_relative 'mozilla_iam/api'
 require_relative 'mozilla_iam/person_api'
 require_relative 'mozilla_iam/management_api'

@@ -1,0 +1,2 @@
+AdminDetailedUserSerializer.include MozillaIAM::AdminDetailedUserSerializerExtensions
+AdminDetailedUserSerializer.attributes :mozilla_iam
