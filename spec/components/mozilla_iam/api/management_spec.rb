@@ -1,7 +1,7 @@
 require_relative "../../../iam_helper"
 
-describe MozillaIAM::ManagementAPI do
-  let(:api) { MozillaIAM::ManagementAPI.new }
+describe MozillaIAM::API::Management do
+  let(:api) { described_class.new }
   before do
     SiteSetting.auth0_domain = "foobar.com"
   end

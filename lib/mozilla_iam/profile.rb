@@ -30,7 +30,7 @@ module MozillaIAM
     private
 
     def mgmt_profile
-      @mgmt_profile ||= ManagementAPI.new.profile(@uid)
+      @mgmt_profile ||= API::Management.new.profile(@uid)
     end
 
     def last_refresh

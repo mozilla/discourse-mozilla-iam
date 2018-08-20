@@ -1,7 +1,7 @@
 require_relative "../../../iam_helper"
 
-describe MozillaIAM::PersonAPI do
-  let(:api) { MozillaIAM::PersonAPI.new }
+describe MozillaIAM::API::Person do
+  let(:api) { described_class.new }
   before do
     SiteSetting.mozilla_iam_person_api_url = "https://person.com"
     SiteSetting.mozilla_iam_person_api_aud = "person.com"
