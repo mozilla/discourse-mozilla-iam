@@ -78,7 +78,7 @@ describe MozillaIAM::Profile do
 
   context "#mgmt_profile" do
     it "returns a user's profile from the Management API and stores it in an instance variable" do
-      MozillaIAM::ManagementAPI.any_instance.expects(:profile).with("uid").returns("profile")
+      MozillaIAM::API::Management.any_instance.expects(:profile).with("uid").returns("profile")
       expect(profile.send(:mgmt_profile)).to eq "profile"
       expect(profile.instance_variable_get(:@mgmt_profile)).to eq "profile"
     end
@@ -158,7 +158,7 @@ describe MozillaIAM::Profile do
     it 'should work if groups attribute is undefined' do
       expect(group.users.count).to eq 0
 
-      MozillaIAM::ManagementAPI.any_instance.expects(:profile).returns(groups: nil, app_metadata: { groups: nil })
+      MozillaIAM::API::Management.any_instance.expects(:profile).returns(groups: nil, app_metadata: { groups: nil })
 
       profile.send(:update_groups)
       expect(group.users.count).to eq 0
@@ -167,7 +167,7 @@ describe MozillaIAM::Profile do
     it 'should work if groups attribute is an empty string' do
       expect(group.users.count).to eq 0
 
-      MozillaIAM::ManagementAPI.any_instance.expects(:profile).returns(groups: '', app_metadata: { groups: '' })
+      MozillaIAM::API::Management.any_instance.expects(:profile).returns(groups: '', app_metadata: { groups: '' })
 
       profile.send(:update_groups)
       expect(group.users.count).to eq 0
@@ -176,7 +176,7 @@ describe MozillaIAM::Profile do
     it 'should work if groups attribute is "None"' do
       expect(group.users.count).to eq 0
 
-      MozillaIAM::ManagementAPI.any_instance.expects(:profile).returns(groups: "None", app_metadata: { groups: "None" })
+      MozillaIAM::API::Management.any_instance.expects(:profile).returns(groups: "None", app_metadata: { groups: "None" })
 
       profile.send(:update_groups)
       expect(group.users.count).to eq 0

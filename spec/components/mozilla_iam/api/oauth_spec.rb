@@ -1,6 +1,6 @@
 require_relative "../../../iam_helper"
 
-describe MozillaIAM::API do
+describe MozillaIAM::API::OAuth do
   let(:config) do
     return {
       client_id: "abc",
@@ -11,7 +11,7 @@ describe MozillaIAM::API do
     }
   end
 
-  let(:api) { MozillaIAM::API.new(config) }
+  let(:api) { described_class.new(config) }
 
   context "#initialize" do
     before do
@@ -33,7 +33,7 @@ describe MozillaIAM::API do
         url: "https://example.com/api",
         aud: "example.com"
       }
-      api = MozillaIAM::API.new(config)
+      api = described_class.new(config)
 
       expect(api.instance_variable_get(:@client_id)).to eq SiteSetting.auth0_client_id
       expect(api.instance_variable_get(:@client_secret)).to eq SiteSetting.auth0_client_secret
@@ -44,12 +44,12 @@ describe MozillaIAM::API do
 
     it "throws error if url isn't specified" do
       config = { aud: "example.com" }
-      expect { MozillaIAM::API.new(config) }.to raise_error "no url in config"
+      expect { described_class.new(config) }.to raise_error "no url in config"
     end
 
     it "throws error if aud isn't specified" do
       config = { url: "https://example.com/api" }
-      expect { MozillaIAM::API.new(config) }.to raise_error "no aud in config"
+      expect { described_class.new(config) }.to raise_error "no aud in config"
     end
   end
 
