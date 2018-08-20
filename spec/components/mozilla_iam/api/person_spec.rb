@@ -1,4 +1,4 @@
-require_relative "../../iam_helper"
+require_relative "../../../iam_helper"
 
 describe MozillaIAM::PersonAPI do
   let(:api) { MozillaIAM::PersonAPI.new }
