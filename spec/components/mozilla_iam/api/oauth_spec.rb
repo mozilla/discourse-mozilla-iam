@@ -1,4 +1,4 @@
-require_relative "../../iam_helper"
+require_relative "../../../iam_helper"
 
 describe MozillaIAM::API do
   let(:config) do
