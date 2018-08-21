@@ -13,6 +13,14 @@ describe MozillaIAM::API::OAuth do
 
   let(:api) { described_class.new(config) }
 
+  describe "profile" do
+    it "it initializes instance and calls profile" do
+      described_class.any_instance.expects(:initialize).once
+      described_class.any_instance.expects(:profile).with("uid").once
+      described_class.profile("uid")
+    end
+  end
+
   context "#initialize" do
     before do
       SiteSetting.auth0_client_id = "xyz"
@@ -142,8 +150,7 @@ describe MozillaIAM::API::OAuth do
         verify_iss: true,
         verify_iat: true,
         verify_aud: true,
-        verify_sub: true,
-        verify_iss: true
+        verify_sub: true
       }).returns(["verified_token", "header"])
       token = api.send(:verify_token, "jwt")
       expect(token).to eq "verified_token"
