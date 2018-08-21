@@ -1,7 +1,7 @@
 module MozillaIAM
   module API
     class OAuth
-      def initialize(config)
+      def initialize(config = {})
         @client_id = config[:client_id] || SiteSetting.auth0_client_id
         @client_secret = config[:client_secret] || SiteSetting.auth0_client_secret
         @token_endpoint = config[:token_endpoint] || "https://#{SiteSetting.auth0_domain}/oauth/token"
@@ -9,6 +9,10 @@ module MozillaIAM
         raise ArgumentError, "no url in config" unless @url
         @aud = config[:aud]
         raise ArgumentError, "no aud in config" unless @aud
+      end
+
+      def self.profile(uid)
+        self.new.profile(uid)
       end
 
       private

@@ -1,14 +1,25 @@
 module MozillaIAM
   class Profile
-    def self.refresh(user)
-      uid = get(user, :uid)
-      return if uid.blank?
-      Profile.new(user, uid).refresh
+    @refresh_methods = []
+
+    class << self
+      attr_accessor :refresh_methods
+
+      def during_refresh(method_name)
+        refresh_methods << method_name
+      end
+
+      def refresh(user)
+        uid = get(user, :uid)
+        return if uid.blank?
+        Profile.new(user, uid).refresh
+      end
     end
 
     def initialize(user, uid)
       @user = user
       @uid = set(:uid, uid)
+      @api_profiles = {}
     end
 
     def refresh
@@ -18,20 +29,26 @@ module MozillaIAM
 
     def force_refresh
       DistributedMutex.synchronize("mozilla_iam_refresh_#{@user.id}") do
-        update_groups
+        @api_profiles = {}
+        self.class.refresh_methods.each { |name| self.send(name) }
         set_last_refresh(Time.now)
       end
     end
 
-    def groups
-      Array(mgmt_profile[:groups]) | Array(mgmt_profile.dig(:app_metadata, :groups))
+    def attr(attr)
+      apis = API.profile_apis.select { |api| api::Profile.method_defined? attr }
+      response = nil
+      apis.each do |api|
+        @api_profiles[api.name] ||= api.profile(@uid)
+        value = @api_profiles[api.name].send(attr)
+        if response.nil?
+          response = value
+        end
+      end
+      return response
     end
 
     private
-
-    def mgmt_profile
-      @mgmt_profile ||= API::Management.new.profile(@uid)
-    end
 
     def last_refresh
       @last_refresh ||=
@@ -47,26 +64,6 @@ module MozillaIAM
     def should_refresh?
       return true unless last_refresh
       Time.now > last_refresh + 900
-    end
-
-    def update_groups
-      GroupMapping.all.each do |mapping|
-        if groups.include?(mapping.iam_group_name)
-          add_to_group(mapping.group)
-        else
-          remove_from_group(mapping.group)
-        end
-      end
-    end
-
-    def add_to_group(group)
-      unless group.users.exists?(@user.id)
-        group.users << @user
-      end
-    end
-
-    def remove_from_group(group)
-      group.users.delete(@user)
     end
 
     def self.get(user, key)
@@ -88,3 +85,5 @@ module MozillaIAM
     end
   end
 end
+
+require_relative "profile/update_groups"

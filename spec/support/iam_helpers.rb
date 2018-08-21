@@ -110,4 +110,11 @@ module IAMHelpers
     stub_request(:get, "https://auth.mozilla.auth0.com/api/v2/users/#{uid}")
       .to_return(status: 200, body: MultiJson.dump(app_metadata: profile))
   end
+
+  def remove_consts(consts, parent = Object)
+    consts.each do |const|
+      parent.send(:remove_const, const)
+      expect { parent.const_get(const) }.to raise_error(NameError)
+    end
+  end
 end

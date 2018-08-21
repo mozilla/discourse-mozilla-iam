@@ -11,9 +11,17 @@ module MozillaIAM
       end
 
       def profile(uid)
-        get("users/#{uid}")
+        Profile.new(get("users/#{uid}"))
       end
 
+      class Profile
+        attr_reader :groups
+
+        def initialize(raw)
+          @raw = raw
+          @groups = Array(raw[:groups]) | Array(raw.dig(:app_metadata, :groups))
+        end
+      end
     end
   end
 end

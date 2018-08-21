@@ -123,6 +123,7 @@ describe MozillaIAM::Authenticator do
     it 'can create profile for new user' do
       user = Fabricate(:user)
       auth = { extra_data: { uid: create_uid(user.username) }}
+      MozillaIAM::Profile.stubs(:refresh_methods).returns([])
 
       authenticator = MozillaIAM::Authenticator.new('auth0', trusted: true)
       result = authenticator.after_create_account(user, auth)
