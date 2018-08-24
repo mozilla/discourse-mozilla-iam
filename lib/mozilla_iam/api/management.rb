@@ -16,10 +16,12 @@ module MozillaIAM
 
       class Profile
         attr_reader :groups
+        attr_reader :secondary_emails
 
         def initialize(raw)
           @raw = raw
           @groups = Array(raw[:groups]) | Array(raw.dig(:app_metadata, :groups))
+          @secondary_emails = Array(raw[:email_aliases])
         end
       end
     end

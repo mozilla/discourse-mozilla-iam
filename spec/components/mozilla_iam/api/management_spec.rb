@@ -69,5 +69,22 @@ describe MozillaIAM::API::Management do
         include_examples "empty array"
       end
     end
+
+    describe "#secondary_emails" do
+      it "returns content of email_aliases" do
+        profile = described_class.new({ email_aliases: ["one", "two"] })
+        expect(profile.secondary_emails).to contain_exactly "one", "two"
+      end
+
+      it "is empty array when email_alises is empty" do
+        profile = described_class.new({ email_aliases: [] })
+        expect(profile.secondary_emails).to eq []
+      end
+
+      it "is empty array email_alises is nil" do
+        profile = described_class.new({ })
+        expect(profile.secondary_emails).to eq []
+      end
+    end
   end
 end

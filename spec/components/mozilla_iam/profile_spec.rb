@@ -19,6 +19,21 @@ describe MozillaIAM::Profile do
     end
   end
 
+  describe ".register_as_array" do
+    it "adds key to .array_keys" do
+      described_class.register_as_array :foo
+      expect(described_class.array_keys).to include :foo
+
+      described_class.register_as_array :bar
+      expect(described_class.array_keys).to include :bar
+
+      described_class.array_keys.delete(:foo)
+      described_class.array_keys.delete(:bar)
+      expect(described_class.array_keys).not_to include :foo
+      expect(described_class.array_keys).not_to include :bar
+    end
+  end
+
   context '.refresh' do
     it "refreshes a user who already has a profile" do
       profile
@@ -101,6 +116,7 @@ describe MozillaIAM::Profile do
           def initialize(rand); @rand = rand; end
           def foo; :foo; end
           def foobar; :foo; end
+          def array; [1, 2, 3]; end
         end
       end
       class Bar
@@ -108,6 +124,7 @@ describe MozillaIAM::Profile do
         class Profile
           def bar; :bar; end
           def foobar; :bar; end
+          def array; [3, 4, 5]; end
         end
       end
       MozillaIAM::API.stubs(:profile_apis).returns([Foo, Bar])
@@ -131,6 +148,10 @@ describe MozillaIAM::Profile do
 
         MozillaIAM::API.stubs(:profile_apis).returns([Bar, Foo])
         expect(profile.attr(:foobar)).to eq :bar
+      end
+
+      it "takes the union of the attribute if it's an array" do
+        expect(profile.attr(:array)).to contain_exactly(1, 2, 3, 4, 5)
       end
     end
 

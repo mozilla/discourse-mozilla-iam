@@ -5,7 +5,9 @@ module MozillaIAM
       object.custom_fields.select do |k, v|
         k.start_with?('mozilla_iam')
       end.map do |k, v|
-        [k.sub('mozilla_iam_', ''), v]
+        key = k.sub('mozilla_iam_', '')
+        val = Array(v) if Profile.array_keys.include?(key.to_sym)
+        [key, val || v]
       end.to_h
     end
 
