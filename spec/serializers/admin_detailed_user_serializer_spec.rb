@@ -25,5 +25,14 @@ describe AdminDetailedUserSerializer do
 
       expect(json[:mozilla_iam]).to be_empty
     end
+
+    it "should return registered custom fields as arrays" do
+      MozillaIAM::Profile.stubs(:array_keys).returns([:array])
+
+      user.custom_fields['mozilla_iam_array'] = "element"
+
+      mozilla_iam = json[:mozilla_iam]
+      expect(mozilla_iam['array']).to eq ["element"]
+    end
   end
 end

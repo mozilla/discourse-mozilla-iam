@@ -72,6 +72,7 @@ module IAMHelpers
   end
 
   def authenticate_user(user)
+    MozillaIAM::Profile.stubs(:refresh_methods).returns([])
     authenticate_with_id_token create_id_token(user)
   end
 
@@ -90,17 +91,25 @@ module IAMHelpers
       kid: 'the_best_key'
     }
 
+    req_body = {
+      audience: aud,
+      client_id: "the_best_client_id",
+      client_secret: "",
+      grant_type: "client_credentials"
+    }
+
     access_token = JWT.encode(payload, private_key, 'RS256', header_fields)
-    body = MultiJson.dump(access_token: access_token)
+    res_body = MultiJson.dump(access_token: access_token)
 
     stub_request(:post, 'https://auth.mozilla.auth0.com/oauth/token')
-      .to_return(status: 200, body: body)
+      .with(body: req_body)
+      .to_return(status: 200, body: res_body)
   end
 
   def stub_people_api_profile_request(uid, profile)
     stub_oauth_token_request('https://person-api.sso.mozilla.com')
 
-    stub_request(:get, "https://uhbz4h3wa8.execute-api.us-west-2.amazonaws.com/prod/profile/#{uid}")
+    stub_request(:get, "https://person-api.sso.mozilla.com/v1/profile/#{uid}")
       .to_return(status: 200, body: MultiJson.dump(body: MultiJson.dump(profile)))
   end
 
@@ -116,5 +125,10 @@ module IAMHelpers
       parent.send(:remove_const, const)
       expect { parent.const_get(const) }.to raise_error(NameError)
     end
+  end
+  
+  def stub_apis_profile_request(uid, profile)
+    stub_management_api_profile_request(uid, profile)
+    stub_people_api_profile_request(uid, profile)
   end
 end

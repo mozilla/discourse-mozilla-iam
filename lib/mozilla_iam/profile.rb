@@ -1,12 +1,18 @@
 module MozillaIAM
   class Profile
     @refresh_methods = []
+    @array_keys = []
 
     class << self
       attr_accessor :refresh_methods
+      attr_accessor :array_keys
 
       def during_refresh(method_name)
         refresh_methods << method_name
+      end
+
+      def register_as_array(key)
+        array_keys << key
       end
 
       def refresh(user)
@@ -43,6 +49,8 @@ module MozillaIAM
         value = @api_profiles[api.name].send(attr)
         if response.nil?
           response = value
+        elsif [response, value].map { |x| x.kind_of? Array }.all?
+          response = response | value
         end
       end
       return response
@@ -87,3 +95,4 @@ module MozillaIAM
 end
 
 require_relative "profile/update_groups"
+require_relative "profile/update_emails"
