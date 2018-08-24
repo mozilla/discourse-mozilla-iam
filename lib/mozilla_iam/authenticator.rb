@@ -58,6 +58,7 @@ module MozillaIAM
         SiteSetting.auth0_domain,
         {
           authorize_params: {
+            action: "signup",
             scope: 'openid name email'
           }
         }
