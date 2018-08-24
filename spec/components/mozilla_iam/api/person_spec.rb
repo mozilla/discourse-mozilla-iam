@@ -90,6 +90,19 @@ describe MozillaIAM::API::Person do
           expect(profile.secondary_emails).to contain_exactly("second@example.com", "third@example.com")
         end
       end
+
+      context "with a primary email in profile as secondary" do
+        let(:profile) { described_class.new({ emails: [
+          { verified: true, value: "first@example.com", primary: true },
+          { verified: true, value: "first@example.com", primary: false },
+          { verified: true, value: "second@example.com", primary: false },
+          { verified: true, value: "third@example.com", primary: false },
+        ] }) }
+
+        it "doesn't return primary email in secondary emails" do
+          expect(profile.secondary_emails).to contain_exactly("second@example.com", "third@example.com")
+        end
+      end
     end
   end
 end

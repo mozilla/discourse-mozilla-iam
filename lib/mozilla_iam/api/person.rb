@@ -28,7 +28,15 @@ module MozillaIAM
         def process_emails
           emails = @raw[:emails]
           if emails
-            emails.select { |x| x[:verified] && !x[:primary] }.map { |x| x[:value] }.uniq
+            primary = emails.select do |x|
+              x[:verified] &&
+              x[:primary]
+            end.map { |x| x[:value] }
+            emails.select do |x|
+              x[:verified] &&
+              !x[:primary] &&
+              primary.exclude?(x[:value])
+            end.map { |x| x[:value] }.uniq
           else
             []
           end
