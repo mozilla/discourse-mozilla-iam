@@ -15,10 +15,15 @@ module MozillaIAM
         array_keys << key
       end
 
-      def refresh(user)
+      def for(user)
         uid = get(user, :uid)
         return if uid.blank?
-        Profile.new(user, uid).refresh
+        Profile.new(user, uid)
+      end
+
+      def refresh(user)
+        profile = self.for(user)
+        profile.refresh unless profile.nil?
       end
     end
 
@@ -56,14 +61,14 @@ module MozillaIAM
       return response
     end
 
-    private
-
     def last_refresh
       @last_refresh ||=
         if time = get(:last_refresh)
           Time.parse(time)
         end
     end
+
+    private
 
     def set_last_refresh(time)
       @last_refresh = set(:last_refresh, time)

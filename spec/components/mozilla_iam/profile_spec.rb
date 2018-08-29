@@ -43,8 +43,22 @@ describe MozillaIAM::Profile do
       expect(result).to be true
     end
 
-    it 'should return nil if user has no profile' do
+    it 'returns nil if user has no profile' do
       result = MozillaIAM::Profile.refresh(user)
+      expect(result).to be_nil
+    end
+  end
+
+  describe ".for" do
+    it "returns a user who has a profile" do
+      profile
+      MozillaIAM::Profile.expects(:new).with(user, "uid").returns(profile)
+      result = described_class.for(user)
+      expect(result).to eq profile
+    end
+
+    it 'returns nil if user has no profile' do
+      result = described_class.for(user)
       expect(result).to be_nil
     end
   end
