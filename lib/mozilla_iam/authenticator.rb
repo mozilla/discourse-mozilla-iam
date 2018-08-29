@@ -26,7 +26,8 @@ module MozillaIAM
 
         result.email = email = payload['email']
         result.email_valid = email_valid = payload['email_verified']
-        result.user = user = User.find_by_email(email) if email_valid
+        user = UserEmail.where(email: email, primary: true).first&.user if email_valid
+        result.user = user
         result.name = payload['name']
         uid = payload['sub']
         result.extra_data = { uid: uid }
