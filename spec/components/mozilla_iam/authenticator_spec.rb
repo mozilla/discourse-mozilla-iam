@@ -110,7 +110,7 @@ describe MozillaIAM::Authenticator do
       expect(result.failed).to eq(true)
     end
 
-    it 'will not log in with an id_token with an unverified email' do
+    it 'will verify email in sign up form with an id_token with an unverified email' do
       user = Fabricate(:user)
       id_token = create_id_token(user, { email_verified: false })
       result = authenticate_with_id_token(id_token)
@@ -123,7 +123,7 @@ describe MozillaIAM::Authenticator do
       id_token = create_id_token(user, { email: user.secondary_emails.first })
       result = authenticate_with_id_token(id_token)
 
-      expect(result.user).to eq(nil)
+      expect(result.failed).to eq true
     end
   end
 
