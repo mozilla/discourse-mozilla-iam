@@ -108,5 +108,16 @@ describe MozillaIAM::Profile do
         end
       end
     end
+
+    context "when primary email is in profile secondary emails" do
+      before { mock_profile_emails("two@email.com", "one@email.com", "four@email.com") }
+
+      include_examples "leaves primary"
+
+      it "sets remaining secondary emails" do
+        profile.send(:update_emails)
+        expect(user.secondary_emails).to contain_exactly("two@email.com", "four@email.com")
+      end
+    end
   end
 end
