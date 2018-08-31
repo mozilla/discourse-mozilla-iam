@@ -121,3 +121,26 @@ describe MozillaIAM::Profile do
     end
   end
 end
+
+describe MozillaIAM::Profile, type: :request do
+  describe "#update_emails" do
+    context "with a non english locale set" do
+      it "shouldn't fail" do
+        SiteSetting.allow_user_locale = true
+        user = Fabricate(:user, locale: :es)
+        authenticate_user(user)
+        sign_in(user)
+
+        Fabricate(:user, email: "taken@email.com")
+        described_class.any_instance.stubs(:attr).with(:secondary_emails).returns(["taken@email.com"])
+        described_class.stubs(:refresh_methods).returns([:update_emails])
+        user.custom_fields["mozilla_iam_last_refresh"] = Time.now - 1.day
+        user.save_custom_fields
+
+        get "/"
+        expect(response.status).to eq 200
+        expect(I18n.locale).to eq :es
+      end
+    end
+  end
+end
