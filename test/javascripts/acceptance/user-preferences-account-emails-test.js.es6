@@ -62,7 +62,7 @@ const assertShowEmailButton = assert => {
   )
 
   assert.notOk(
-    exists(".pref-mozilla-iam-secondary-email"),
+    exists(".pref-mozilla-iam-secondary-emails"),
     "doesn't show secondary email"
   )
 }
