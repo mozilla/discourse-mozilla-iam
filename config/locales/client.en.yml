@@ -20,3 +20,7 @@ en:
           secondary_instructions: "can also be used to email discourse"
           secondary_instructions_further: "change your mozillians contact identities to edit"
           no_secondary: "No secondary addresses"
+          duplicate_accounts: "Duplicate Accounts"
+          duplicate_accounts_instructions: "your duplicate accounts and the emails they've taken"
+          duplicate_accounts_instructions_further: "pm the admins to merge your accounts"
+          merge_accounts: "Merge Accounts"

@@ -101,3 +101,4 @@ end
 
 require_relative "profile/update_groups"
 require_relative "profile/update_emails"
+require_relative "profile/duplicate_accounts"

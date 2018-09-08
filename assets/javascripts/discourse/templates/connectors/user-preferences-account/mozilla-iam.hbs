@@ -38,6 +38,36 @@
       {{i18n 'mozilla_iam.user.email.secondary_instructions'}}<br>
       {{i18n 'mozilla_iam.user.email.secondary_instructions_further'}}
     </div>
+
+    {{#if model.duplicate_accounts}}
+      <div class="controls pref-mozilla-iam-duplicate-accounts">
+        <label class="inline-label">{{i18n "mozilla_iam.user.email.duplicate_accounts"}}</label>
+        {{#link-to "new-message"
+          (query-params groupname="admins" title="Merge user accounts" body=message_admins_body)
+          class="btn btn-small btn-icon pad-left no-text"
+        }}
+          {{d-icon "envelope"}} {{i18n "mozilla_iam.user.email.merge_accounts"}}
+        {{/link-to}}
+        <ul class="value">
+          {{#each model.duplicate_accounts as |user| }}
+            <li>
+              {{#user-info user=user}}
+                <ul>
+                  <li>{{user.email}}</li>
+                  {{#each user.secondary_emails as |email|}}
+                    <li>{{email}}</li>
+                  {{/each}}
+                </ul>
+              {{/user-info}}
+            </li>
+          {{/each}}
+        </ul>
+      </div>
+      <div class="instructions">
+        {{i18n "mozilla_iam.user.email.duplicate_accounts_instructions"}}<br>
+        {{i18n "mozilla_iam.user.email.duplicate_accounts_instructions_further"}}
+      </div>
+    {{/if}}
   {{else}}
     <div class="controls pref-mozilla-iam-check-email">
       {{d-button action="checkEmail" actionParam=model title="admin.users.check_email.title" icon="envelope-o" label="admin.users.check_email.text"}}

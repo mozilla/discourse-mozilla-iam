@@ -5,20 +5,23 @@ acceptance("Mozilla IAM - User Preferences Account Emails", {
   loggedIn: true
 })
 
-const responseWithEmails = (primary, secondary) => {
+const responseWithUserData = data => {
   var json = Object(user_fixtures["/u/eviltrout.json"])
-  json.user.can_edit = true
-  if (primary) {
-    json.user.email = "eviltrout@example.com"
-  } else {
-    json.user.email = null
-  }
-  json.user.secondary_emails = secondary
+  Object.assign(json.user, { can_edit: true, email: "eviltrout@example.com" }, data)
   return [
     200,
     { "Content-Type": "application/json" },
     json
   ]
+}
+
+const responseWithEmails = (primary, secondary) => {
+  var user = {}
+  if (!primary) {
+    user.email = null
+  }
+  user.secondary_emails = secondary
+  return responseWithUserData(user)
 }
 
 const assertPrimary = assert => {
@@ -144,4 +147,99 @@ QUnit.test("viewing another user with secondary emails", async assert => {
 
   assertPrimary(assert)
   assertSecondary(assert, secondary)
+})
+
+QUnit.test("viewing self without duplicate_accounts", async assert => {
+  await visit("/u/eviltrout/preferences/account")
+
+  assert.notOk(
+    exists(".pref-mozilla-iam-duplicate-accounts"),
+    "doesn't show duplicate accounts section"
+  )
+})
+
+QUnit.test("viewing self with duplicate_accounts", async assert => {
+  server.get("/u/eviltrout.json", () => {
+    return responseWithUserData({ duplicate_accounts: [
+      { username: "foo", email: "one", secondary_emails: ["two", "three"] },
+      { username: "bar", email: "bar@example.com"}
+    ] })
+  })
+
+  server.get("/groups/admins/messageable", () => {
+    return [200, { "Content-Type": "application/json" }, { messageable: true }]
+  })
+
+  await visit("/u/eviltrout/preferences/account")
+
+  assert.ok(
+    exists(".pref-mozilla-iam-duplicate-accounts"),
+    "shows duplicate accounts section"
+  )
+
+  assert.equal(
+    find(".pref-mozilla-iam-duplicate-accounts .value li:first-of-type .username").text().trim(),
+    "foo",
+    "displays first duplicate account username"
+  )
+
+  assert.equal(
+    find(".pref-mozilla-iam-duplicate-accounts .value li:first-of-type .details li:nth-of-type(1)").text().trim(),
+    "one",
+    "displays first duplicate account primary email"
+  )
+
+  assert.equal(
+    find(".pref-mozilla-iam-duplicate-accounts .value li:first-of-type .details li:nth-of-type(2)").text().trim(),
+    "two",
+    "displays first duplicate account first secondary email"
+  )
+
+  assert.equal(
+    find(".pref-mozilla-iam-duplicate-accounts .value li:first-of-type .details li:nth-of-type(3)").text().trim(),
+    "three",
+    "displays first duplicate account second secondary email"
+  )
+
+  assert.equal(
+    find(".pref-mozilla-iam-duplicate-accounts .value li:last-of-type .username").text().trim(),
+    "bar",
+    "displays second duplicate account username"
+  )
+
+  assert.equal(
+    find(".pref-mozilla-iam-duplicate-accounts .value li:last-of-type .details").text().trim(),
+    "bar@example.com",
+    "displays second duplicate account email"
+  )
+
+  assert.ok(
+    exists(".pref-mozilla-iam-duplicate-accounts .btn"),
+    "displays merge accounts button"
+  )
+
+  await click(".pref-mozilla-iam-duplicate-accounts .btn")
+
+  assert.equal(
+    find(".composer-fields .users-input").text().trim(),
+    "admins",
+    "displays prefilled admin group in composer"
+  )
+
+  assert.equal(
+    find("#reply-title").val(),
+    "Merge user accounts",
+    "displays prefilled title in composer"
+  )
+
+  assert.equal(
+    find(".d-editor-input").val(),
+    `Please merge these duplicate accounts:
+
+* @foo
+* @bar
+
+into my account. Thanks!`,
+    "displays prefilled message in composer"
+  )
 })
