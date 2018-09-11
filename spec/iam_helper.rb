@@ -16,6 +16,7 @@ end
 
 require 'rails_helper'
 require_relative 'support/iam_helpers.rb'
+require_relative "support/shared_examples.rb"
 
 require_relative '../db/migrate/20170608165435_create_group_mappings'
 CreateGroupMappings.new.migrate(:up) unless ActiveRecord::Base.connection.table_exists? 'mozilla_iam_group_mappings'

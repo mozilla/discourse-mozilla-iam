@@ -1,7 +1,7 @@
 require_relative 'mozilla_iam/engine'
 
-require_relative 'mozilla_iam/admin_detailed_user_serializer_extensions'
-require_relative 'mozilla_iam/user_serializer_extensions'
+require_relative 'mozilla_iam/serializer_extensions/duplicate_accounts'
+require_relative 'mozilla_iam/serializer_extensions/mozilla_iam'
 require_relative 'mozilla_iam/api'
 require_relative 'mozilla_iam/api/oauth'
 require_relative 'mozilla_iam/api/person'

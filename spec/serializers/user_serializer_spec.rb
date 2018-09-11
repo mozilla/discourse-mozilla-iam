@@ -147,4 +147,47 @@ describe UserSerializer do
       include_examples "not shown"
     end
   end
+
+  describe "#mozilla_iam" do
+    let(:user) { Fabricate(:user) }
+
+    shared_examples "shown" do
+      include_examples "mozilla_iam in serializer"
+    end
+
+    shared_examples "not shown" do
+      it "is nil" do
+        user.custom_fields['mozilla_iam_one'] = "some data"
+        user.save
+
+        mozilla_iam = json[:mozilla_iam]
+        expect(mozilla_iam).to be_nil
+      end
+    end
+
+    context "as the user" do
+      include_context "as the user"
+      include_examples "shown"
+    end
+
+    context "as an admin" do
+      include_context "as an admin"
+      include_examples "shown"
+    end
+
+    context "as a moderator" do
+      include_context "as a moderator"
+      include_examples "shown"
+    end
+
+    context "as another user" do
+      include_context "as another user"
+      include_examples "not shown"
+    end
+
+    context "as an anonymous user" do
+      include_context "as an anonymous user"
+      include_examples "not shown"
+    end
+  end
 end

@@ -6,6 +6,13 @@ export default {
       body += "\ninto my account. Thanks!"
       component.set("message_admins_body", body)
     }
+
+    var custom_fields = args.model.mozilla_iam
+    if (custom_fields) {
+      if (/^ad|Mozilla-LDAP/.test(custom_fields.uid)) {
+        component.set("ldap_account", true)
+      }
+    }
   },
 
   actions: {

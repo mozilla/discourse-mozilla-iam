@@ -19,6 +19,7 @@ en:
           primary_instructions_further: "make the same as your mozillians login identity to link profiles"
           secondary_instructions: "can also be used to email discourse"
           secondary_instructions_further: "change your mozillians contact identities to edit"
+          secondary_instructions_ldap: "includes ldap aliases, if you have any"
           no_secondary: "No secondary addresses"
           duplicate_accounts: "Duplicate Accounts"
           duplicate_accounts_instructions: "your duplicate accounts and the emails they've taken"

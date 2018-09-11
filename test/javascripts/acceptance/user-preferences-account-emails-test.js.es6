@@ -243,3 +243,39 @@ into my account. Thanks!`,
     "displays prefilled message in composer"
   )
 })
+
+QUnit.test("viewing self without ldap account", async assert => {
+  server.get("/u/eviltrout.json", () => {
+    return responseWithUserData({
+      email: "foo",
+      mozilla_iam: {
+        uid: "oauth2|firefoxaccounts|lmcardle"
+      }
+    })
+  })
+
+  await visit("/u/eviltrout/preferences/account")
+
+  assert.notOk(
+    find(".pref-mozilla-iam-secondary-emails + .instructions").text().includes(" ldap "),
+    "doesn't show ldap aliases instruction"
+  )
+})
+
+QUnit.test("viewing self with ldap account", async assert => {
+  server.get("/u/eviltrout.json", () => {
+    return responseWithUserData({
+      email: "foo",
+      mozilla_iam: {
+        uid: "ad|Mozilla-LDAP|lmcardle"
+      }
+    })
+  })
+
+  await visit("/u/eviltrout/preferences/account")
+
+  assert.ok(
+    find(".pref-mozilla-iam-secondary-emails + .instructions").text().includes(" ldap "),
+    "shows ldap aliases instruction"
+  )
+})

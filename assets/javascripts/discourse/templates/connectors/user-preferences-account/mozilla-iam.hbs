@@ -37,6 +37,9 @@
     <div class="instructions">
       {{i18n 'mozilla_iam.user.email.secondary_instructions'}}<br>
       {{i18n 'mozilla_iam.user.email.secondary_instructions_further'}}
+      {{#if ldap_account}}
+        <br>{{i18n "mozilla_iam.user.email.secondary_instructions_ldap"}}
+      {{/if}}
     </div>
 
     {{#if model.duplicate_accounts}}
