@@ -3,9 +3,7 @@ module MozillaIAM
   module UserSerializerExtensions
 
     def duplicate_accounts
-      Profile.for(object)&.duplicate_accounts&.map do |u|
-        UserSerializer.new(u, scope: Guardian.new(u), root: false)
-      end
+      Array(Profile.for(object)&.duplicate_accounts)
     end
 
     def include_duplicate_accounts?

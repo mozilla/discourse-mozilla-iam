@@ -88,14 +88,18 @@ describe UserSerializer do
     end
   end
 
-  context "with duplicate accounts" do
+  context "with duplicate accounts (of each other)" do
     let(:user) { Fabricate(:user) }
     let(:duplicate_user) { Fabricate(:user) }
 
     before do
       profile = MozillaIAM::Profile.new(user, "uid")
       profile.stubs(:duplicate_accounts).returns([ duplicate_user ])
-      MozillaIAM::Profile.stubs(:for).returns(profile)
+      MozillaIAM::Profile.stubs(:for).with(user).returns(profile)
+
+      duplicate_user_profile = MozillaIAM::Profile.new(duplicate_user, "uid2")
+      duplicate_user_profile.stubs(:duplicate_accounts).returns([ user ])
+      MozillaIAM::Profile.stubs(:for).with(duplicate_user).returns(duplicate_user_profile)
     end
 
     shared_examples "shown" do
@@ -103,10 +107,11 @@ describe UserSerializer do
         duplicate_accounts = json[:duplicate_accounts]
         expect(duplicate_accounts.length).to eq 1
         account = duplicate_accounts.first
-        expect(account.id).to eq duplicate_user.id
-        expect(account.username).to eq duplicate_user.username
-        expect(account.email).to eq duplicate_user.email
-        expect(account.secondary_emails).to eq duplicate_user.secondary_emails
+        expect(account[:id]).to eq duplicate_user.id
+        expect(account[:username]).to eq duplicate_user.username
+        expect(account[:email]).to eq duplicate_user.email
+        expect(account[:secondary_emails]).to eq duplicate_user.secondary_emails
+        expect(account[:duplicate_accounts]).to be_nil
       end
     end
 
