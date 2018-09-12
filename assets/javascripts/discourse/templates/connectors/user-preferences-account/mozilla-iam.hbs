@@ -8,7 +8,14 @@
     <div class="controls pref-mozilla-iam-primary-email">
       <label class="inline-label">{{i18n 'user.email.primary'}}</label>
       {{#if model.can_edit_email}}
-        {{#link-to "preferences.email" class="btn btn-small btn-icon pad-left no-text"}}{{d-icon "pencil"}}{{/link-to}}
+        {{#link-to "preferences.email"
+          tagName="button"
+          type="button"
+          class="btn btn-small btn-icon pad-left no-text"
+          title=(i18n "mozilla_iam.user.email.primary_edit")
+        }}
+          {{d-icon "pencil" label=(i18n "mozilla_iam.user.email.primary_edit")}}
+        {{/link-to}}
       {{/if}}
       <div class="value">
         {{model.email}}
@@ -21,8 +28,14 @@
 
     <div class="controls pref-mozilla-iam-secondary-emails">
       <label class="inline-label">{{i18n 'user.email.secondary'}}</label>
-      <a href="https://mozillians.org/user/edit/#idp-profiles" target="_blank" class="btn btn-small btn-icon pad-left no-text">
-        {{d-icon "pencil"}} {{i18n 'mozillians.edit'}}
+      <a href="https://mozillians.org/user/edit/#idp-profiles"
+        role="button"
+        target="_blank"
+        class="btn btn-small btn-icon pad-left no-text"
+        title="{{i18n "mozilla_iam.user.email.secondary_edit"}}"
+      >
+        {{d-icon "pencil" label=(i18n "mozilla_iam.user.email.secondary_edit")}}
+        <span aria-hidden>{{i18n 'mozillians.edit'}}</span>
       </a>
       {{#if model.secondary_emails}}
         <ul class="value">
@@ -48,8 +61,12 @@
         {{#link-to "new-message"
           (query-params groupname="admins" title="Merge user accounts" body=message_admins_body)
           class="btn btn-small btn-icon pad-left no-text"
+          tagName="button"
+          type="button"
+          title=(i18n "mozilla_iam.user.email.merge_accounts_long")
         }}
-          {{d-icon "envelope"}} {{i18n "mozilla_iam.user.email.merge_accounts"}}
+          {{d-icon "envelope" label=(i18n "mozilla_iam.user.email.merge_accounts_long")}}
+          <span aria-hidden>{{i18n "mozilla_iam.user.email.merge_accounts"}}</span>
         {{/link-to}}
         <ul class="value">
           {{#each model.duplicate_accounts as |user| }}

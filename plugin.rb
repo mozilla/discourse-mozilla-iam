@@ -1,6 +1,6 @@
 # name: mozilla-iam
 # about: A plugin to integrate Discourse with Mozilla's Identity and Access Management (IAM) system
-# version: 0.2.9
+# version: 0.2.10
 # authors: Leo McArdle
 # url: https://github.com/mozilla/discourse-mozilla-iam
 
