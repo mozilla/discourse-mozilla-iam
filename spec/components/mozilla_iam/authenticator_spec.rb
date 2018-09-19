@@ -108,6 +108,7 @@ describe MozillaIAM::Authenticator do
       result = authenticate_with_id_token(id_token)
 
       expect(result.failed).to eq(true)
+      expect(result.failed_reason).to eq I18n.t("login.omniauth_error_unknown", default: nil)
     end
 
     it 'will verify email in sign up form with an id_token with an unverified email' do

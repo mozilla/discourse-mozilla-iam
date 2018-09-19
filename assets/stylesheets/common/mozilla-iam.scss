@@ -30,3 +30,43 @@
     }
   }
 }
+
+#mozilla-iam-auth-error-page {
+  font-size: 16px;
+  max-width: 570px;
+  margin: 0 auto;
+
+  h1, h2 {
+    font-family: "Open Sans", sans-serif;
+  }
+
+  h1 {
+    font-size: 4em;
+  }
+
+  .panel {
+    background-color: #f4f4f4;
+    box-shadow: 5px 5px 0 0 rgba(217, 217, 217, 1);
+    padding: 30px;
+    position: relative;
+    margin-bottom: 24px;
+
+    &:before {
+      content: ' ';
+      position: absolute;
+      width: 0;
+      height: 0;
+      left: 30px;
+      top: -40px;
+      border: 25px solid;
+      border-color: transparent transparent #f4f4f4 transparent;
+    }
+  }
+
+  .btn {
+    display: block;
+    width: 270px;
+    margin: 19px auto;
+    line-height: 1.5em;
+  }
+}

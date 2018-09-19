@@ -13,12 +13,7 @@ describe OmniAuth::Strategies::OAuth2 do
     get '/auth/auth0/callback'
 
     expect(response.status).to eq(302)
-    expect(response.location).to eq('/auth/auth0?go_back')
-
-    get response.location
-
-    expect(response.status).to eq(302)
-    expect(URI.parse(response.location).query).to include('prompt=login')
+    expect(response.location).to eq('/auth/auth0?prompt=login')
   end
 
   it "handles callbacks with params normally" do
@@ -28,11 +23,26 @@ describe OmniAuth::Strategies::OAuth2 do
     expect(response.location).to eq('/auth/failure?message=csrf_detected&strategy=auth0')
   end
 
-  it "uses autologin with normal authentication" do
+  it "uses autologin and sign-up flow with normal authentication" do
     get '/auth/auth0'
 
     expect(response.status).to eq(302)
     expect(URI.parse(response.location).query).to_not include('prompt=login')
+    expect(URI.parse(response.location).query).to include('action=signup')
+  end
+
+  it "passes prompt param through" do
+    get '/auth/auth0?prompt=value'
+
+    expect(response.status).to eq(302)
+    expect(URI.parse(response.location).query).to include('prompt=value')
+  end
+
+  it "passes action param through" do
+    get '/auth/auth0?action=value'
+
+    expect(response.status).to eq(302)
+    expect(URI.parse(response.location).query).to include('action=value')
   end
 
 end

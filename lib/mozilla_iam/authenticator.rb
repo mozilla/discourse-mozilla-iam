@@ -1,4 +1,5 @@
 module MozillaIAM
+
   class Authenticator < Auth::OAuth2Authenticator
 
     def enabled?
@@ -48,7 +49,7 @@ module MozillaIAM
       rescue => e
         result = Auth::Result.new
         result.failed = true
-        result.failed_reason = I18n.t("login.omniauth_error")
+        result.failed_reason = I18n.t("login.omniauth_error_unknown")
         Rails.logger.error("#{e.class} (#{e.message})\n#{e.backtrace.join("\n")}")
         return result
       end
