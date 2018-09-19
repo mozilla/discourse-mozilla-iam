@@ -275,7 +275,7 @@ QUnit.test("viewing self with ldap account", async assert => {
   await visit("/u/eviltrout/preferences/account")
 
   assert.ok(
-    find(".pref-mozilla-iam-secondary-emails + .instructions").text().includes(" ldap "),
+    find(".pref-mozilla-iam-secondary-emails + .instructions").text().includes(" LDAP "),
     "shows ldap aliases instruction"
   )
 })
