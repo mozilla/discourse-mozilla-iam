@@ -1,0 +1,14 @@
+<div id="mozilla-iam-auth-error-page">
+  <h1>Error</h1>
+  <div class="panel">
+    <h2>
+      <%if flash[:error].present? %>
+        <%=flash[:error]%>
+      <%else%>
+        <%= t 'login.omniauth_error_unknown' %>
+      <%end%>
+    </h2>
+  </div>
+  <a class="btn btn-primary" href="/auth/auth0?prompt=login&action=login" role="button"><%= t "log_in" %></a>
+  <a class="btn" href="/c/iam" role="button"><%= t "mozilla_iam.need_help" %></a>
+</div>

@@ -108,6 +108,7 @@ describe MozillaIAM::Authenticator do
       result = authenticate_with_id_token(id_token)
 
       expect(result.failed).to eq(true)
+      expect(result.failed_reason).to eq I18n.t("login.omniauth_error_unknown", default: nil)
     end
 
     it 'will verify email in sign up form with an id_token with an unverified email' do
@@ -124,6 +125,7 @@ describe MozillaIAM::Authenticator do
       result = authenticate_with_id_token(id_token)
 
       expect(result.failed).to eq true
+      expect(result.failed_reason).to_not eq I18n.t("login.omniauth_error_unknown")
     end
   end
 
@@ -142,6 +144,15 @@ describe MozillaIAM::Authenticator do
       expect(result).to       be_within(5.seconds).of Time.now
       expect(last_refresh).to be_within(5.seconds).of Time.now
       expect(uid).to          eq(create_uid(user.username))
+    end
+  end
+
+  describe described_class::SecondaryEmailError do
+    it "loads IDP from profile" do
+      user = Fabricate(:user)
+      MozillaIAM::Profile.new(user, "ad|Mozilla-LDAP|uid")
+      error = described_class.new(user, "email")
+      expect(error.idp).to eq "LDAP"
     end
   end
 end

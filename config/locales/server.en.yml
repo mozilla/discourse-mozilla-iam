@@ -5,3 +5,7 @@ en:
     auth0_client_secret: 'Your auth0 client secret. Find it on the application settings on the Auth0 dashboard.'
     mozilla_iam_person_api_url: 'URL to the Mozilla IAM Person API endpoint'
     mozilla_iam_person_api_aud: 'Audience for the Mozilla IAM Person API'
+  mozilla_iam:
+    need_help: "Need help?"
+    authenticator:
+      secondary_email_error: "Oops, you logged in with %{secondary_email}, which is one of your secondary email addresses. Please log in with %{idp} using %{primary_email} instead."

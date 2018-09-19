@@ -1,4 +1,5 @@
 module MozillaIAM
+
   class Authenticator < Auth::OAuth2Authenticator
 
     def enabled?
@@ -28,7 +29,7 @@ module MozillaIAM
         result.email_valid = email_valid = payload['email_verified']
         result.user = user = User.find_by_email(email) if email_valid
         if Array(user&.secondary_emails).include? email
-          raise "user #{user.id} attempted to log in with secondary email #{email}"
+          raise SecondaryEmailError.new(user, email)
         end
         result.name = payload['name']
         uid = payload['sub']
@@ -42,7 +43,15 @@ module MozillaIAM
       rescue => e
         result = Auth::Result.new
         result.failed = true
-        result.failed_reason = I18n.t("login.omniauth_error")
+        if e.class == SecondaryEmailError
+          result.failed_reason = I18n.t("mozilla_iam.authenticator.secondary_email_error",
+            secondary_email: e.email,
+            primary_email: e.user.email,
+            idp: e.idp
+          )
+        else
+          result.failed_reason = I18n.t("login.omniauth_error_unknown")
+        end
         Rails.logger.error("#{e.class} (#{e.message})\n#{e.backtrace.join("\n")}")
         return result
       end
@@ -66,6 +75,21 @@ module MozillaIAM
           }
         }
       )
+    end
+
+    class SecondaryEmailError < StandardError
+      attr_reader :user
+      attr_reader :email
+
+      def initialize(user, email)
+        @user = user
+        @email = email
+        super "user #{user.id} attempted to log in with secondary email #{email}"
+      end
+
+      def idp
+        @idp ||= Profile.for(user)&.idp || "Unknown"
+      end
     end
   end
 end
