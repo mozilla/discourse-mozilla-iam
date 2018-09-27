@@ -6,6 +6,10 @@ Discourse + Mozilla IAM
 
 A plugin to integrate [Discourse](http://discourse.org) with Mozilla's Identity and Access Management (IAM) system.
 
+## Bug reports
+
+Bug reports should be filed [by following the process described here](https://discourse.mozilla.org/t/where-do-i-file-bug-reports-about-discourse/32078).
+
 ## Running tests
 
 Clone this plugin into `plugins/discourse-mozilla-iam` in the root of your Discourse source dir.
