@@ -119,12 +119,14 @@ describe MozillaIAM::Authenticator do
       expect(result.user).to eq(nil)
     end
 
-    it "won't log in a user if they log in with their secondary email" do
+    it "will log in a user if they log in with their secondary email" do
       user = Fabricate(:user)
       id_token = create_id_token(user, { email: user.secondary_emails.first })
+      MozillaIAM::Profile.stubs(:refresh_methods).returns([])
       result = authenticate_with_id_token(id_token)
 
-      expect(result.failed).to eq true
+      expect(result.failed).to eq false
+      expect(result.user.id).to eq(user.id)
     end
 
     context "when the AAL" do
