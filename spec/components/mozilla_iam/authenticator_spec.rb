@@ -125,6 +125,33 @@ describe MozillaIAM::Authenticator do
 
       expect(result.failed).to eq true
     end
+
+    context "when the AAL" do
+      let(:user) { Fabricate(:user) }
+      let(:id_token) { create_id_token(user, { "https://sso.mozilla.com/claim/AAL" => "LOW" }) }
+      before do
+        MozillaIAM::Profile.expects(:refresh_methods).returns([:update_groups])
+        MozillaIAM::GroupMapping.create(iam_group_name: 'iam_group', group: Fabricate(:group))
+      end
+
+      context "is high enough" do
+        it "authenticates user" do
+          MozillaIAM::Profile.any_instance.expects(:attr).with(:groups).returns([])
+          result = authenticate_with_id_token(id_token)
+
+          expect(result.user.id).to eq user.id
+        end
+      end
+
+      context "is too low" do
+        it "doesn't authenticate user" do
+          MozillaIAM::Profile.any_instance.expects(:attr).with(:groups).returns(["iam_group"])
+          result = authenticate_with_id_token(id_token)
+
+          expect(result.failed).to eq true
+        end
+      end
+    end
   end
 
   context '#after_create_account' do

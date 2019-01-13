@@ -31,6 +31,10 @@ module MozillaIAM
           log_off_user
         else
           refresh_iam_session
+          unless Profile.for(current_user).is_aal_enough?(session[:mozilla_iam].try(:[], :aal))
+            reset_session
+            log_off_user
+          end
         end
       rescue => e
         reset_session

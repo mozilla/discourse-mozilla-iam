@@ -45,7 +45,8 @@ module IAMHelpers
       iss: 'https://auth.mozilla.auth0.com/',
       aud: 'the_best_client_id',
       exp: Time.now.to_i + 7.days,
-      iat: Time.now.to_i
+      iat: Time.now.to_i,
+      "https://sso.mozilla.com/claim/AAL": "UNKNOWN"
     }.merge(additional_payload)
 
     header_fields = {
@@ -126,7 +127,7 @@ module IAMHelpers
       expect { parent.const_get(const) }.to raise_error(NameError)
     end
   end
-  
+
   def stub_apis_profile_request(uid, profile)
     stub_management_api_profile_request(uid, profile)
     stub_people_api_profile_request(uid, profile)

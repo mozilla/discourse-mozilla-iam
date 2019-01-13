@@ -99,6 +99,20 @@ describe TopicsController do
           expect(session[:mozilla_iam][:no_refresh]).to eq true
         end
       end
+
+      context "and when MEDIUM or above AAL required" do
+        it "kills session" do
+          MozillaIAM::Profile.any_instance.expects(:is_aal_enough?).with(nil).returns(true)
+
+          get :show, params: { id: 666 }, format: :json
+          expect(session['current_user_id']).to be
+
+          MozillaIAM::Profile.any_instance.expects(:is_aal_enough?).with(nil).returns(false)
+
+          get :show, params: { id: 666 }, format: :json
+          expect(session['current_user_id']).to be_nil
+        end
+      end
     end
 
     context "with session[:mozilla_iam][:no_refresh] set to true" do
@@ -132,6 +146,25 @@ describe TopicsController do
 
           get :show, params: { id: 666 }, format: :json
         end
+      end
+    end
+
+    context "when the AAL becomes too low" do
+      it "kills session" do
+        user = Fabricate(:user)
+        authenticate_user(user)
+        log_in_user(user)
+        session[:mozilla_iam] = { aal: "LOW" }
+
+        MozillaIAM::Profile.any_instance.expects(:is_aal_enough?).with("LOW").returns(true)
+
+        get :show, params: { id: 666 }, format: :json
+        expect(session['current_user_id']).to be
+
+        MozillaIAM::Profile.any_instance.expects(:is_aal_enough?).with("LOW").returns(false)
+
+        get :show, params: { id: 666 }, format: :json
+        expect(session['current_user_id']).to be_nil
       end
     end
   end

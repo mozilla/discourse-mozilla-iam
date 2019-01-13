@@ -18,8 +18,10 @@ module MozillaIAM
         ::PluginStore.set('mozilla-iam', 'logout_delay', logout_delay)
         Rails.cache.write('mozilla-iam/logout_delay', logout_delay)
 
+        aal = payload['https://sso.mozilla.com/claim/AAL']
         auth_token[:session][:mozilla_iam] = {
-          last_refresh: Time.now
+          last_refresh: Time.now,
+          aal: aal
         }
 
         result = Auth::Result.new
@@ -35,7 +37,11 @@ module MozillaIAM
         result.extra_data = { uid: uid }
 
         if user
-          Profile.new(user, uid).force_refresh
+          profile = Profile.new(user, uid)
+          profile.force_refresh
+          unless profile.is_aal_enough?(aal)
+            raise "user logged in with too low an AAL"
+          end
         end
 
         result
