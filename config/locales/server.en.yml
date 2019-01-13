@@ -7,3 +7,5 @@ en:
     mozilla_iam_person_api_aud: 'Audience for the Mozilla IAM Person API'
   mozilla_iam:
     need_help: "Need help?"
+    authenticator:
+      aal_error: "Sorry, your account requires you to log in with a more secure form of authentication. Please try again with a more secure authentication method."

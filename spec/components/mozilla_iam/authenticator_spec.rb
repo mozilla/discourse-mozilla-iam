@@ -150,6 +150,7 @@ describe MozillaIAM::Authenticator do
           result = authenticate_with_id_token(id_token)
 
           expect(result.failed).to eq true
+          expect(result.failed_reason).to_not eq I18n.t("login.omniauth_error_unknown")
         end
       end
     end

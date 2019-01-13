@@ -41,7 +41,7 @@ module MozillaIAM
           profile = Profile.new(user, uid)
           profile.force_refresh
           unless profile.is_aal_enough?(aal)
-            raise "user logged in with too low an AAL"
+            raise AALError.new(user, aal)
           end
         end
 
@@ -49,7 +49,13 @@ module MozillaIAM
       rescue => e
         result = Auth::Result.new
         result.failed = true
-        result.failed_reason = I18n.t("login.omniauth_error_unknown")
+
+        if e.class == AALError
+          result.failed_reason = I18n.t("mozilla_iam.authenticator.aal_error")
+        else
+          result.failed_reason = I18n.t("login.omniauth_error_unknown")
+        end
+
         Rails.logger.error("#{e.class} (#{e.message})\n#{e.backtrace.join("\n")}")
         return result
       end
@@ -73,6 +79,17 @@ module MozillaIAM
           }
         }
       )
+    end
+
+    class AALError < StandardError
+      attr_reader :user
+      attr_reader :aal
+
+      def initialize(user, aal)
+        @user = user
+        @aal = aal
+        super "user (id: #{user.id}) logged in with too low an AAL: #{aal}"
+      end
     end
   end
 end
