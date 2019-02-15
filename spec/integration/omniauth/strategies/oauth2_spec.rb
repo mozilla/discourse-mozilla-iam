@@ -45,6 +45,14 @@ describe OmniAuth::Strategies::OAuth2 do
     expect(URI.parse(response.location).query).to include('action=value')
   end
 
+  it "doesn't pass params to redirect_uri sent to auth0" do
+    get "/auth/auth0?param"
+    query = CGI.parse URI.parse(response.location).query
+    redirect_uri = query["redirect_uri"].first
+    expect(redirect_uri).to_not include("/auth/auth0/callback?param")
+    expect(redirect_uri).to eq "http://test.localhost/auth/auth0/callback"
+  end
+
   it "redirects to original origin after failing callback in omniauth code" do
     origin = "https://discourse-site/t/1234"
     fail_url = "/auth/auth0/callback?code=fail&state=fail"
