@@ -30,6 +30,9 @@ module MozillaIAM
         result.email = email = payload['email']
         result.email_valid = email_valid = payload['email_verified']
         result.user = user = User.find_by_email(email) if email_valid
+        if Array(user&.secondary_emails).include? email
+          raise "user #{user.id} attempted to log in with secondary email #{email}"
+        end
         result.name = payload['name']
         uid = payload['sub']
         result.extra_data = { uid: uid }
