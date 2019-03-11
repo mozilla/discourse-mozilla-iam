@@ -9,3 +9,4 @@ en:
     need_help: "Need help?"
     authenticator:
       aal_error: "Sorry, your account requires you to log in with a more secure form of authentication. Please try again with a more secure authentication method."
+      secondary_email_error: "Oops, you logged in with %{secondary_email}, which is one of your secondary email addresses. Please log in with %{primary_email} instead."

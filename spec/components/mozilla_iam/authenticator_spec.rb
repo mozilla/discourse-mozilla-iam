@@ -125,6 +125,9 @@ describe MozillaIAM::Authenticator do
       result = authenticate_with_id_token(id_token)
 
       expect(result.failed).to eq true
+      expect(result.failed_reason).to_not eq I18n.t("login.omniauth_error_unknown")
+      expect(result.failed_reason).to eq "Oops, you logged in with #{user.secondary_emails.first},"\
+        " which is one of your secondary email addresses. Please log in with #{user.email} instead."
     end
 
     context "when the AAL" do

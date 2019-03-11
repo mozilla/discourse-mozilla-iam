@@ -31,7 +31,7 @@ module MozillaIAM
         result.email_valid = email_valid = payload['email_verified']
         result.user = user = User.find_by_email(email) if email_valid
         if Array(user&.secondary_emails).include? email
-          raise "user #{user.id} attempted to log in with secondary email #{email}"
+          raise SecondaryEmailError.new(user, email)
         end
         result.name = payload['name']
         uid = payload['sub']
@@ -52,6 +52,11 @@ module MozillaIAM
 
         if e.class == AALError
           result.failed_reason = I18n.t("mozilla_iam.authenticator.aal_error")
+        elsif e.class == SecondaryEmailError
+          result.failed_reason = I18n.t("mozilla_iam.authenticator.secondary_email_error",
+            secondary_email: e.email,
+            primary_email: e.user.email
+          )
         else
           result.failed_reason = I18n.t("login.omniauth_error_unknown")
         end
@@ -89,6 +94,17 @@ module MozillaIAM
         @user = user
         @aal = aal
         super "user (id: #{user.id}) logged in with too low an AAL: #{aal}"
+      end
+    end
+
+    class SecondaryEmailError < StandardError
+      attr_reader :user
+      attr_reader :email
+
+      def initialize(user, email)
+        @user = user
+        @email = email
+        super "user #{user.id} attempted to log in with secondary email #{email}"
       end
     end
   end
