@@ -150,6 +150,10 @@ QUnit.test("viewing another user with secondary emails", async assert => {
 })
 
 QUnit.test("viewing self without duplicate_accounts", async assert => {
+  server.get("/u/eviltrout.json", () => {
+    return responseWithUserData({ duplicate_accounts: [] })
+  })
+  
   await visit("/u/eviltrout/preferences/account")
 
   assert.notOk(
