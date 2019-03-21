@@ -9,6 +9,9 @@ en:
       mappings:
         title: 'IAM Group Mappings'
   js:
+    login:
+      auth0:
+        name: "Mozilla"
     mozillians:
       edit: "Edit on Mozillians"
     mozilla_iam:
