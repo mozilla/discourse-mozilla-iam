@@ -32,6 +32,11 @@ module MozillaIAM
         if res.code == '200'
           MultiJson.load(res.body, symbolize_keys: true)
         else
+          Rails.logger.error <<~EOF
+            Mozilla IAM: Error fetching /#{path}
+            client_id: #{@client_id}, url: #{@url}
+            response: #{res.body}
+          EOF
           {}
         end
       end
@@ -63,7 +68,15 @@ module MozillaIAM
               audience: @aud
             }
           )
-        MultiJson.load(response.body)['access_token']
+        if response.status == 200
+          MultiJson.load(response.body)['access_token']
+        else
+          raise <<~EOF
+            Mozilla IAM: Error fetching OAuth token:
+            client_id: #{@client_id}, token_endpoint: #{@token_endpoint}, audience: #{@aud}
+            response: #{response.body}
+          EOF
+        end
       end
 
       def verify_token(token)
