@@ -17,6 +17,7 @@ end
 require 'rails_helper'
 require_relative 'support/iam_helpers.rb'
 require_relative "support/shared_examples.rb"
+require_relative "support/dinopark_shared_examples.rb"
 
 SiteSetting.auth0_client_id = 'the_best_client_id'
 
