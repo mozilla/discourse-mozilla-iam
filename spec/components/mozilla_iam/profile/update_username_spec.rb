@@ -98,6 +98,33 @@ describe MozillaIAM::Profile do
 
       include_examples "updates username"
     end
+
+    context "with dinopark username already set which needs to be sanitized" do
+      let(:dinopark_username) { "===this is a véry long username with weird characters in it@@@@" }
+      let(:username_before) { UserNameSuggester.find_available_username_based_on(dinopark_username) }
+      before do
+        user.change_username(username_before)
+        user.reload
+        user.expects(:change_username).never
+        profile.expects(:attr).with(:username).returns(dinopark_username)
+      end
+
+      include_examples "no change"
+    end
+
+    context "with dinopark username already set in difference case which needs to be sanitized" do
+      let(:dinopark_username) { "===this is a véry long username with weird characters in it@@@@" }
+      let(:username_before) { UserNameSuggester.find_available_username_based_on(dinopark_username) }
+      let(:dinopark_username_caps) { "===This is a véry long username with weird characters in it@@@@" }
+      let(:username_after) { UserNameSuggester.fix_username(dinopark_username_caps) }
+      before do
+        user.change_username(username_before)
+        user.reload
+        profile.expects(:attr).with(:username).returns(dinopark_username_caps)
+      end
+
+      include_examples "updates username"
+    end
   end
 
   include_examples "dinopark refresh method", :update_username, :username

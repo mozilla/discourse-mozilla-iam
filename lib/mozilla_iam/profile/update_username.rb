@@ -8,6 +8,9 @@ module MozillaIAM
       username = attr(:username).dup
       return if username.blank?
       return if username == @user.username
+
+      username = UserNameSuggester.fix_username(username)
+      return if username == @user.username
       return if User.reserved_username? username
 
       if @user.username.downcase != username.downcase
