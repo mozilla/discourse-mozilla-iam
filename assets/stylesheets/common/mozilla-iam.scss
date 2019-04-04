@@ -1,4 +1,18 @@
 .user-preferences {
+
+  .dinopark-edit {
+    margin-left: 10px;
+  }
+
+  .form-vertical {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .control-group {
+    order: 1;
+  }
+
   .pref-email, .pref-associated-accounts {
     display: none;
   }

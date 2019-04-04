@@ -12,6 +12,9 @@ en:
     login:
       auth0:
         name: "Mozilla"
+    dinopark:
+      edit_short: "Edit"
+      edit_long: "Edit on people.mozilla.org"
     mozillians:
       edit: "Edit on Mozillians"
     mozilla_iam:

@@ -1,6 +1,6 @@
 # name: mozilla-iam
 # about: A plugin to integrate Discourse with Mozilla's Identity and Access Management (IAM) system
-# version: 1.2.0-alpha.9
+# version: 1.2.0-alpha.10
 # authors: Leo McArdle
 # url: https://github.com/mozilla/discourse-mozilla-iam
 
@@ -19,6 +19,8 @@ require_relative 'lib/mozilla_iam'
 add_admin_route 'mozilla_iam.mappings.title', 'mozilla-iam.mappings'
 
 register_asset "stylesheets/common/mozilla-iam.scss"
+
+register_svg_icon "external-link-alt"
 
 auth_provider(title: 'Mozilla',
               message: 'Log In / Sign Up',

@@ -1,0 +1,33 @@
+{{#if model.mozilla_iam.dinopark_enabled}}
+<style>
+  .pref-bio,
+  .pref-location {
+    display: none;
+  }
+
+  .pref-dinopark-bio,
+  .pref-dinopark-location {
+    display: block;
+  }
+</style>
+
+  <div class="control-group pref-bio pref-dinopark-bio">
+    <label class="control-label">
+      {{i18n 'user.bio'}}
+      {{dinopark-edit}}
+    </label>
+    <div class="controls bio-composer input-xxlarge">
+      {{d-editor value=model.bio_raw disabled=true}}
+    </div>
+  </div>
+
+  <div class="control-group pref-location pref-dinopark-location">
+    <label class="control-label">
+      {{i18n 'user.location'}}
+      {{dinopark-edit}}
+    </label>
+    <div class="controls">
+      <span class='static'>{{model.location}}</span>
+    </div>
+  </div>
+{{/if}}
