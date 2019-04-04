@@ -48,6 +48,7 @@ describe MozillaIAM::Profile do
         Fabricate(:user, username: username_after)
         Fabricate(:user, username: "#{username_after}1")
         profile.send(:update_username)
+        profile.send(:update_username)
         user.reload
         expect(user.username).to_not eq username_before
         expect(user.username).to eq "#{username_after}2"
@@ -67,6 +68,7 @@ describe MozillaIAM::Profile do
         (1..9).each do |n|
           Fabricate(:user, username: "johnsmi#{n}")
         end
+        profile.send(:update_username)
         profile.send(:update_username)
         user.reload
         expect(user.username).to_not eq username_before

@@ -14,7 +14,7 @@ module MozillaIAM
       return if User.reserved_username? username
 
       if @user.username.downcase != username.downcase
-        username = UserNameSuggester.find_available_username_based_on(username)
+        username = UserNameSuggester.find_available_username_based_on(username, @user.username)
       end
 
       unless @user.change_username(username)
