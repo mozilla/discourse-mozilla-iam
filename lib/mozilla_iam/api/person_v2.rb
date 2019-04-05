@@ -33,6 +33,18 @@ module MozillaIAM
           @location = process :location
         end
 
+        def blank?
+          @raw.blank?
+        end
+
+        def to_hash
+          hash = {}
+          (instance_variables - [:@raw]).each do |var|
+            hash[var.to_s.delete_prefix("@")] = instance_variable_get(var)
+          end
+          hash
+        end
+
         private
 
         def process(name)

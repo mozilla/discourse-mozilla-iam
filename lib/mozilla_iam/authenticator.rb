@@ -34,7 +34,7 @@ module MozillaIAM
           raise SecondaryEmailError.new(user, email)
         end
         result.name = payload['name']
-        uid = payload['sub']
+        result.user_id = uid = payload['sub']
         result.extra_data = { uid: uid }
 
         if user
@@ -68,7 +68,9 @@ module MozillaIAM
 
     def after_create_account(user, auth)
       uid = auth[:extra_data][:uid]
-      Profile.new(user, uid).force_refresh
+      p = Profile.new(user, uid)
+      p.dinopark_enabled = true if auth[:dinopark_enabled]
+      p.force_refresh
     end
 
     def register_middleware(omniauth)

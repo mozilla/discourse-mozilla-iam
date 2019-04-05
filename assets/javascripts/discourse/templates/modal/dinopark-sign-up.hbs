@@ -1,0 +1,39 @@
+{{#d-modal-body class="dinopark-sign-up"}}
+  {{#if showingConfirm}}
+    <h1>{{i18n 'dinopark.sign_up.confirm_title'}}</h1>
+    <p>{{i18n 'dinopark.sign_up.confirm_description'}}</p>
+  {{else}}
+    <h1>{{i18n 'dinopark.sign_up.prompt_title'}}</h1>
+    <h4>{{i18n 'dinopark.sign_up.prompt_subtitle'}}</h4>
+    <p>{{i18n 'dinopark.sign_up.prompt_description'}}</p>
+  {{/if}}
+  <ul>
+    {{#if showingConfirm}}
+      <li>username: {{options.dinopark_profile.username}}</li>
+      <li>full name: {{options.dinopark_profile.full_name}}</li>
+      <li>pronouns: {{options.dinopark_profile.pronouns}}</li>
+      <li>fun title: {{options.dinopark_profile.fun_title}}</li>
+      <li>description: {{options.dinopark_profile.description}}</li>
+      <li>location: {{options.dinopark_profile.location}}</li>
+    {{else}}
+      <li>username</li>
+      <li>full name</li>
+      <li>pronouns</li>
+      <li>fun title</li>
+      <li>description</li>
+      <li>location</li>
+    {{/if}}
+  </ul>
+  {{input type="checkbox" id="tos-checkbox" checked=tosChecked}}
+  <label for="tos-checkbox">{{{i18n 'dinopark.sign_up.tos' tos_url=siteSettings.tos_url privacy_url=siteSettings.privacy_policy_url}}}</label>
+{{/d-modal-body}}
+<div class="modal-footer">
+  {{#conditional-loading-spinner condition=submitted size="small"}}
+    {{d-button label="dinopark.sign_up.cancel" action=(action "normalSignup")}}
+    {{#if showingConfirm}}
+      {{d-button label="dinopark.sign_up.confirm" class=(concat "btn-primary " (unless tosChecked "disabled")) disabled=(unless tosChecked true) action=(action "confirm")}}
+    {{else}}
+      {{d-button label="dinopark.sign_up.continue" class=(concat "btn-primary " (unless tosChecked "disabled")) disabled=(unless tosChecked true) action=(action "findProfile")}}
+    {{/if}}
+  {{/conditional-loading-spinner}}
+</div>

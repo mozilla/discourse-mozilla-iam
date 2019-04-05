@@ -8,11 +8,13 @@ require_relative 'mozilla_iam/api/person'
 require_relative 'mozilla_iam/api/person_v2'
 require_relative 'mozilla_iam/api/management'
 require_relative 'mozilla_iam/application_extensions'
+require_relative 'mozilla_iam/auth_result_extensions'
 require_relative 'mozilla_iam/authenticator'
 require_relative 'mozilla_iam/jwks'
 require_relative 'mozilla_iam/jwt'
 require_relative 'mozilla_iam/profile'
 require_relative 'mozilla_iam/omniauth_oauth2_extensions'
+require_relative 'mozilla_iam/users_controller_extensions'
 
 module MozillaIAM
 end
