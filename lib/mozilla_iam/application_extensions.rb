@@ -27,19 +27,24 @@ module MozillaIAM
           end
 
         if last_refresh + logout_delay < Time.now
-          reset_session
-          log_off_user
+          raise <<~EOF
+            Mozilla IAM: User session expired
+            user_id: #{current_user.id}, last_refresh: #{last_refresh}, logout_delay: #{logout_delay}
+          EOF
         else
           refresh_iam_session
-          unless Profile.for(current_user).is_aal_enough?(session[:mozilla_iam].try(:[], :aal))
-            reset_session
-            log_off_user
+          aal = session[:mozilla_iam].try(:[], :aal)
+          unless Profile.for(current_user).is_aal_enough?(aal)
+            raise <<~EOF
+              Mozilla IAM: AAL not enough, user logged out
+              user_id: #{current_user.id}, aal: #{aal}
+            EOF
           end
         end
       rescue => e
+        Rails.logger.warn("Killed session for user #{current_user.id}: #{e.class} (#{e.message})\n#{e.backtrace.join("\n")}")
         reset_session
         log_off_user
-        raise e
       end
     end
 
