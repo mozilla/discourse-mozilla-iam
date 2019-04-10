@@ -13,6 +13,7 @@ en:
       auth0:
         name: "Mozilla"
     dinopark:
+      profile_url_title: "Mozilla Directory Profile"
       edit_short: "Edit"
       edit_long: "Edit on people.mozilla.org"
       sign_up:

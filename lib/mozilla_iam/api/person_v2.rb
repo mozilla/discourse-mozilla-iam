@@ -23,6 +23,7 @@ module MozillaIAM
         attr_reader :description
         attr_reader :location
         attr_reader :picture
+        attr_reader :profile_url
 
         def initialize(raw)
           @raw = raw
@@ -33,6 +34,7 @@ module MozillaIAM
           @description = process :description
           @location = process :location
           @picture = process_picture
+          @profile_url = process_profile_url
         end
 
         def blank?
@@ -78,6 +80,11 @@ module MozillaIAM
           else
             url
           end
+        end
+
+        def process_profile_url
+          name = process :primary_username
+          SiteSetting.dinopark_url.chomp("/") + "/p/" + name unless name.nil?
         end
       end
     end

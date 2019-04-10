@@ -51,7 +51,7 @@ describe MozillaIAM::API::PersonV2 do
       described_class.new(raw)
     end
 
-    shared_examples "one-to-one mapping" do |method, attribute, value|
+    shared_examples "one-to-one mapping" do |method, attribute, value, return_value|
       describe "##{method}" do
         context "with no #{attribute} attribute" do
           let(:profile) { described_class.new({}) }
@@ -80,12 +80,13 @@ describe MozillaIAM::API::PersonV2 do
         let(:profile) { profile_with(attribute, value) }
 
         it "returns #{attribute}" do
-          expect(profile.public_send(method)).to eq value
+          expect(profile.public_send(method)).to eq (return_value || value)
         end
       end
     end
 
     include_examples "one-to-one mapping", :username, :primary_username, "janedoe"
+    include_examples "one-to-one mapping", :profile_url, :primary_username, "janedoe", "https://dinopark.k8s.test.sso.allizom.org/p/janedoe"
     include_examples "one-to-one mapping", :pronouns, :pronouns, "she/her"
     include_examples "one-to-one mapping", :fun_title, :fun_title, "Fun job title"
     include_examples "one-to-one mapping", :description, :description, "I have a fun job"
