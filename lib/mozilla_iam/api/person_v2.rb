@@ -22,6 +22,7 @@ module MozillaIAM
         attr_reader :fun_title
         attr_reader :description
         attr_reader :location
+        attr_reader :picture
 
         def initialize(raw)
           @raw = raw
@@ -31,6 +32,7 @@ module MozillaIAM
           @fun_title = process :fun_title
           @description = process :description
           @location = process :location
+          @picture = process_picture
         end
 
         def blank?
@@ -69,6 +71,14 @@ module MozillaIAM
           return "#{last}" unless last.blank?
         end
 
+        def process_picture
+          url = process :picture
+          if !url.blank? && url.starts_with?("/")
+            SiteSetting.dinopark_url.chomp("/") + url
+          else
+            url
+          end
+        end
       end
     end
   end

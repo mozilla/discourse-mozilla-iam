@@ -164,5 +164,17 @@ describe MozillaIAM::API::PersonV2 do
         end
       end
     end
+
+    include_examples "one-to-one mapping", :picture, :picture, "http://example.com/avatar.png"
+
+    describe "#picture" do
+      context "with relative url" do
+        let(:profile) { profile_with(:picture, "/avatar.png") }
+
+        it "returns absolute url" do
+          expect(profile.public_send(:picture)).to eq "https://dinopark.k8s.test.sso.allizom.org/avatar.png"
+        end
+      end
+    end
   end
 end

@@ -21,6 +21,9 @@ mozilla_iam:
   mozilla_iam_person_v2_api_aud:
     default: "api.test.sso.allizom.org"
     shadowed_by_global: true
+  dinopark_url:
+    default: "https://dinopark.k8s.test.sso.allizom.org/"
+    shadowed_by_global: true
   dinopark_edit_url:
     default: "https://dinopark.k8s.test.sso.allizom.org/beta/e?section=personal-info"
     shadowed_by_global: true
