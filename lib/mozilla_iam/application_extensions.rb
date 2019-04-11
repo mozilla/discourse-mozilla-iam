@@ -3,6 +3,7 @@ module MozillaIAM
     def check_iam_session
       begin
         return unless current_user
+        return if current_user.id < 0
 
         last_refresh = session[:mozilla_iam].try(:[], :last_refresh)
         no_refresh = session[:mozilla_iam].try(:[], :no_refresh)

@@ -167,5 +167,20 @@ describe TopicsController do
         expect(session['current_user_id']).to be_nil
       end
     end
+
+    context "with system user" do
+      let(:user) { User.find(-1) }
+      before do
+        authenticate_user(user)
+        log_in_user(user)
+      end
+
+      it "does nothing" do
+        MozillaIAM::Profile.expects(:for).never
+        MozillaIAM::Profile.expects(:refresh).never
+
+        get :show, params: { id: 666 }, format: :json
+      end
+    end
   end
 end
