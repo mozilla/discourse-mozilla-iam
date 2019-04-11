@@ -38,7 +38,8 @@ module MozillaIAM
           unless Profile.for(current_user).is_aal_enough?(aal)
             raise <<~EOF
               Mozilla IAM: AAL not enough, user logged out
-              user_id: #{current_user.id}, aal: #{aal}
+              user_id: #{current_user.id}, aal: #{aal},
+              session: #{session.to_hash}
             EOF
           end
         end
