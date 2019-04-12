@@ -24,9 +24,6 @@ mozilla_iam:
   dinopark_url:
     default: "https://dinopark.k8s.test.sso.allizom.org/"
     shadowed_by_global: true
-  dinopark_edit_url:
-    default: "https://dinopark.k8s.test.sso.allizom.org/beta/e?section=personal-info"
-    shadowed_by_global: true
     client: true
   mozilla_iam_notification_aud:
     default: "hook.prod.sso.mozilla.com"
