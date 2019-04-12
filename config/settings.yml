@@ -15,3 +15,6 @@ mozilla_iam:
   mozilla_iam_person_api_aud:
     default: 'https://person-api.sso.mozilla.com'
     shadowed_by_global: true
+  mozilla_iam_notification_aud:
+    default: "hook.prod.sso.mozilla.com"
+    shadowed_by_global: true
