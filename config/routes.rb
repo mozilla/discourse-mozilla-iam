@@ -8,4 +8,5 @@ MozillaIAM::Engine.routes.draw do
   namespace :admin, constraints: AdminConstraint.new do
     resources :group_mappings, path: :mappings
   end
+    post :notification, to: "notification#notification"
 end
