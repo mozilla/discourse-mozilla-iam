@@ -5,23 +5,9 @@ module MozillaIAM
         return unless current_user
         return if current_user.id < 0
 
-        last_refresh = session[:mozilla_iam].try(:[], :last_refresh)
-        no_refresh = session[:mozilla_iam].try(:[], :no_refresh)
+        mozilla_session_data = SessionData.find_or_create(session, request.cookies)
 
-        return if no_refresh && !last_refresh
-
-        unless last_refresh
-          current_user.clear_custom_fields
-          last_refresh = Profile.for(current_user)&.last_refresh
-          session[:mozilla_iam] = {} if session[:mozilla_iam].nil?
-          if last_refresh
-            session[:mozilla_iam][:last_refresh] = last_refresh
-          else
-            session[:mozilla_iam][:no_refresh] = true
-            return
-          end
-        end
-
+        last_refresh = mozilla_session_data.last_refresh
         logout_delay =
           Rails.cache.fetch('mozilla-iam/logout_delay') do
             ::PluginStore.get('mozilla-iam', 'logout_delay')
@@ -33,8 +19,8 @@ module MozillaIAM
             user_id: #{current_user.id}, last_refresh: #{last_refresh}, logout_delay: #{logout_delay}
           EOF
         else
-          refresh_iam_session
-          aal = session[:mozilla_iam].try(:[], :aal)
+          mozilla_session_data.update!(last_refresh: Profile.refresh(current_user))
+          aal = mozilla_session_data.aal
           unless Profile.for(current_user).is_aal_enough?(aal)
             raise <<~EOF
               Mozilla IAM: AAL not enough, user logged out
@@ -48,10 +34,6 @@ module MozillaIAM
         reset_session
         log_off_user
       end
-    end
-
-    def refresh_iam_session
-      session[:mozilla_iam][:last_refresh] = Profile.refresh(current_user)
     end
   end
 end

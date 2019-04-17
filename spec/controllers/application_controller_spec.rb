@@ -14,7 +14,8 @@ describe TopicsController do
 
       get :show, params: { id: 666 }, format: :json
 
-      expect(session[:mozilla_iam][:last_refresh]).to be_within(5.seconds).of last_refresh
+      session_data = MozillaIAM::SessionData.find_or_create({}, request.cookies)
+      expect(session_data.last_refresh).to be_within(5.seconds).of last_refresh
     end
 
     it 'refreshes the session after 15 minutes' do
@@ -28,7 +29,9 @@ describe TopicsController do
       session[:mozilla_iam] = { last_refresh: last_refresh }
 
       get :show, params: { id: 666 }, format: :json
-      expect(session[:mozilla_iam][:last_refresh]).to be_within(5.seconds).of Time.now
+
+      session_data = MozillaIAM::SessionData.find_or_create({}, request.cookies)
+      expect(session_data.last_refresh).to be_within(5.seconds).of Time.now
     end
 
     it 'logs off the user after 7 days' do
@@ -58,94 +61,15 @@ describe TopicsController do
       expect(session['current_user_id']).to be_nil
     end
 
-    context "with no session[:mozilla_iam] set" do
-      let(:user) { Fabricate(:user) }
-      before do
+    context "with no last_refresh" do
+      it "kills session" do
+        user = Fabricate(:user)
         authenticate_user(user)
         log_in_user(user)
-        session[:mozilla_iam] = nil
-      end
-
-      context "and with a user with a last refresh" do
-        it "fetches last refresh from user profile" do
-          last_refresh = Time.now - 5.minutes
-          user.custom_fields['mozilla_iam_last_refresh'] = last_refresh
-          user.save_custom_fields
-
-          get :show, params: { id: 666 }, format: :json
-
-          expect(session[:mozilla_iam][:last_refresh]).to be_within(2.seconds).of last_refresh
-        end
-      end
-
-      context "and with a user with no last refresh" do
-        it "sets session[:mozilla_iam][:no_refresh] to true" do
-          user.custom_fields['mozilla_iam_last_refresh'] = nil
-          user.save_custom_fields
-
-          get :show, params: { id: 666 }, format: :json
-
-          expect(session[:mozilla_iam][:no_refresh]).to eq true
-        end
-      end
-
-      context "and with a user with no profile" do
-        it "sets session[:mozilla_iam][:no_refresh] to true" do
-          user.custom_fields['mozilla_iam_uid'] = nil
-          user.save_custom_fields
-
-          get :show, params: { id: 666 }, format: :json
-
-          expect(session[:mozilla_iam][:no_refresh]).to eq true
-        end
-      end
-
-      context "and when MEDIUM or above AAL required" do
-        it "kills session" do
-          MozillaIAM::Profile.any_instance.expects(:is_aal_enough?).with(nil).returns(true)
-
-          get :show, params: { id: 666 }, format: :json
-          expect(session['current_user_id']).to be
-
-          MozillaIAM::Profile.any_instance.expects(:is_aal_enough?).with(nil).returns(false)
-
-          get :show, params: { id: 666 }, format: :json
-          expect(session['current_user_id']).to be_nil
-        end
-      end
-    end
-
-    context "with session[:mozilla_iam][:no_refresh] set to true" do
-      let(:user) { Fabricate(:user) }
-      before do
-        authenticate_user(user)
-        log_in_user(user)
-        session[:mozilla_iam] = { no_refresh: true }
-      end
-
-      it "doesn't query user profile" do
-        MozillaIAM::Profile.expects(:for).never
+        session[:mozilla_iam] = {}
 
         get :show, params: { id: 666 }, format: :json
-      end
-
-      it "doesn't refresh user profile" do
-        MozillaIAM::Profile.expects(:refresh).never
-
-        get :show, params: { id: 666 }, format: :json
-      end
-
-      context "and with session[:mozilla_iam][:last_refresh] set" do
-        before do
-          last_refresh = Time.now - 5.minutes
-          session[:mozilla_iam][:last_refresh] = last_refresh
-        end
-
-        it "refreshes user profile" do
-          MozillaIAM::Profile.expects(:refresh).once
-
-          get :show, params: { id: 666 }, format: :json
-        end
+        expect(session['current_user_id']).to be_nil
       end
     end
 
@@ -154,7 +78,7 @@ describe TopicsController do
         user = Fabricate(:user)
         authenticate_user(user)
         log_in_user(user)
-        session[:mozilla_iam] = { aal: "LOW" }
+        session[:mozilla_iam] = { last_refresh: Time.now, aal: "LOW" }
 
         MozillaIAM::Profile.any_instance.expects(:is_aal_enough?).with("LOW").returns(true)
 
