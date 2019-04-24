@@ -7,7 +7,7 @@ describe MozillaIAM::Profile do
 
   let(:email) { "one@email.com" }
   let(:secondary_emails) { ["two@email.com", "three@email.com"] }
-  let(:user) { user = Fabricate(:user_single_email, email: email) }
+  let(:user) { user = Fabricate(:user, email: email) }
   let(:profile) { MozillaIAM::Profile.new(user, "uid") }
 
   def mock_profile_emails(*secondary)
@@ -24,7 +24,7 @@ describe MozillaIAM::Profile do
   describe "#store_taken_email_or_raise" do
     let(:taken_emails) { [] }
     before do
-      u = Fabricate(:user, email: "taken_primary@email.com")
+      u = Fabricate(:user_with_secondary_email, email: "taken_primary@email.com")
       Fabricate(:secondary_email, user: u, email: "taken_secondary@email.com")
     end
 
@@ -48,7 +48,7 @@ describe MozillaIAM::Profile do
 
     it "raises exception if it's not because of a taken email" do
       begin
-        Fabricate(:user_email, user: user, email: "second_primary@email.com")
+        Fabricate(:user_with_secondary_email_email, user: user, email: "second_primary@email.com")
       rescue Exception => e
         expect { profile.send(:store_taken_email_or_raise, e, taken_emails) }.to raise_exception e
         expect(taken_emails).to eq []
@@ -94,7 +94,7 @@ describe MozillaIAM::Profile do
 
       context "and some of those emails are taken" do
         before do
-          u = Fabricate(:user, email: "taken1@email.com")
+          u = Fabricate(:user_with_secondary_email, email: "taken1@email.com")
           Fabricate(:secondary_email, user: u, email: "taken2@email.com")
           mock_profile_emails("taken1@email.com", "two@email.com", "taken2@email.com", "four@email.com")
         end
@@ -127,11 +127,11 @@ describe MozillaIAM::Profile, type: :request do
     context "with a non english locale set" do
       it "shouldn't fail" do
         SiteSetting.allow_user_locale = true
-        user = Fabricate(:user, locale: :es)
+        user = Fabricate(:user_with_secondary_email, locale: :es)
         authenticate_user(user)
         sign_in(user)
 
-        Fabricate(:user, email: "taken@email.com")
+        Fabricate(:user_with_secondary_email, email: "taken@email.com")
         described_class.any_instance.stubs(:attr).with(:secondary_emails).returns(["taken@email.com"])
         described_class.stubs(:refresh_methods).returns([:update_emails])
         user.custom_fields["mozilla_iam_last_refresh"] = Time.now - 1.day

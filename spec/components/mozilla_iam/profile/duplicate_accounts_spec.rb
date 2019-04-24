@@ -2,7 +2,7 @@ require_relative '../../../iam_helper'
 
 describe MozillaIAM::Profile do
   describe "#duplicate_accounts" do
-    let(:user) { Fabricate(:user) }
+    let(:user) { Fabricate(:user_with_secondary_email) }
     let(:profile) { MozillaIAM::Profile.new(user, "uid") }
 
     context "when no emails are taken" do
@@ -12,7 +12,7 @@ describe MozillaIAM::Profile do
     end
 
     context "when email is taken" do
-      let!(:duplicate_user) { Fabricate(:user, email: "taken@email.com") }
+      let!(:duplicate_user) { Fabricate(:user_with_secondary_email, email: "taken@email.com") }
       before { profile.send :set, "taken_emails", ["taken@email.com"] }
 
       it "returns user_id of duplicate account" do
@@ -21,8 +21,8 @@ describe MozillaIAM::Profile do
     end
 
     context "when emails are taken and one user has multiple" do
-      let!(:duplicate_user1) { Fabricate(:user, email: "taken1@email.com") }
-      let!(:duplicate_user2) { Fabricate(:user) }
+      let!(:duplicate_user1) { Fabricate(:user_with_secondary_email, email: "taken1@email.com") }
+      let!(:duplicate_user2) { Fabricate(:user_with_secondary_email) }
       before do
         profile.send :set, "taken_emails", [
           "taken1@email.com",
@@ -39,7 +39,7 @@ describe MozillaIAM::Profile do
     end
 
     context "when email registered as taken isn't" do
-      let!(:duplicate_user) { Fabricate(:user, email: "taken@email.com") }
+      let!(:duplicate_user) { Fabricate(:user_with_secondary_email, email: "taken@email.com") }
       before do
         profile.send :set, "taken_emails", [
           "taken@email.com",

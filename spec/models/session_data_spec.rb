@@ -9,7 +9,7 @@ describe MozillaIAM::SessionData do
     let!(:last_refresh) { Time.now.round }
     let(:aal) { "MEDIUM" }
     let(:cookies) { { described_class::TOKEN_COOKIE => "12345" } }
-    let(:user_auth_token) { UserAuthToken.generate!(user_id: Fabricate(:user).id) }
+    let(:user_auth_token) { UserAuthToken.generate!(user_id: Fabricate(:user_with_secondary_email).id) }
     before { UserAuthToken.expects(:lookup).with("12345").returns(user_auth_token) }
 
     context "with session[:mozilla_iam]" do

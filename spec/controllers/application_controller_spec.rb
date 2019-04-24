@@ -3,7 +3,7 @@ require_relative '../iam_helper'
 describe TopicsController do
   context '#check_iam_session' do
     it 'does nothing under 15 minutes' do
-      user = Fabricate(:user)
+      user = Fabricate(:user_with_secondary_email)
       authenticate_user(user)
       log_in_user(user)
 
@@ -19,7 +19,7 @@ describe TopicsController do
     end
 
     it 'refreshes the session after 15 minutes' do
-      user = Fabricate(:user)
+      user = Fabricate(:user_with_secondary_email)
       authenticate_user(user)
       log_in_user(user)
 
@@ -35,7 +35,7 @@ describe TopicsController do
     end
 
     it 'logs off the user after 7 days' do
-      user = Fabricate(:user)
+      user = Fabricate(:user_with_secondary_email)
       authenticate_user(user)
       log_in_user(user)
 
@@ -63,7 +63,7 @@ describe TopicsController do
 
     context "with no last_refresh" do
       it "kills session" do
-        user = Fabricate(:user)
+        user = Fabricate(:user_with_secondary_email)
         authenticate_user(user)
         log_in_user(user)
         session[:mozilla_iam] = {}
@@ -75,7 +75,7 @@ describe TopicsController do
 
     context "when the AAL becomes too low" do
       it "kills session" do
-        user = Fabricate(:user)
+        user = Fabricate(:user_with_secondary_email)
         authenticate_user(user)
         log_in_user(user)
         session[:mozilla_iam] = { last_refresh: Time.now, aal: "LOW" }

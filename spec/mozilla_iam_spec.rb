@@ -8,8 +8,8 @@ describe MozillaIAM do
 
   context 'new post in restricted category' do
 
-    let(:poster) { Fabricate(:user) }
-    let(:user) { Fabricate(:user) }
+    let(:poster) { Fabricate(:user_with_secondary_email) }
+    let(:user) { Fabricate(:user_with_secondary_email) }
     let(:group) { Fabricate(:group, users: [user]) }
     let(:category) { Fabricate(:private_category, group: group) }
     let(:topic) { Fabricate(:topic, category: category, user: poster) }
@@ -83,8 +83,8 @@ describe MozillaIAM do
   end
 
   context 'new private message' do
-    let(:author) { Fabricate(:user) }
-    let(:user) { Fabricate(:user) }
+    let(:author) { Fabricate(:user_with_secondary_email) }
+    let(:user) { Fabricate(:user_with_secondary_email) }
     let(:post) do
       PostCreator.create(author, title: 'private message test',
                                  raw: 'this is my private message',
