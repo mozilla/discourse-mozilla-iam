@@ -38,7 +38,7 @@ describe MozillaIAM::NotificationController, type: :request do
       let(:jwt) do
         create_jwt({
           iss: 'https://auth.mozilla.auth0.com/',
-          aud: 'hook.prod.sso.mozilla.com',
+          aud: 'hook.sso.mozilla.com',
           exp: Time.now.to_i + 7.days,
           iat: Time.now.to_i,
         }, {
