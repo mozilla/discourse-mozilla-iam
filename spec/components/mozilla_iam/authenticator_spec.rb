@@ -25,7 +25,7 @@ describe MozillaIAM::Authenticator do
     end
 
     it 'can authenticate and create a profile for an existing user' do
-      user = Fabricate(:user)
+      user = Fabricate(:user_with_secondary_email)
       result = authenticate_user(user)
 
       uid = user.custom_fields['mozilla_iam_uid']
@@ -41,7 +41,7 @@ describe MozillaIAM::Authenticator do
     end
 
     it 'can refresh an existing profile for an existing user' do
-      user = Fabricate(:user)
+      user = Fabricate(:user_with_secondary_email)
       user.custom_fields['mozilla_iam_uid'] = create_uid(user.username)
       user.custom_fields['mozilla_iam_last_refresh'] = Time.now - 14.minutes
       user.save_custom_fields
@@ -68,7 +68,7 @@ describe MozillaIAM::Authenticator do
     end
 
     it 'can refresh an existing profile for an existing user with a new uid' do
-      user = Fabricate(:user)
+      user = Fabricate(:user_with_secondary_email)
       old_uid = "the_best_uid"
       new_uid = create_uid(user.username)
       user.custom_fields['mozilla_iam_uid'] = old_uid
@@ -103,7 +103,7 @@ describe MozillaIAM::Authenticator do
     end
 
     it 'will not log in with an expired id_token' do
-      user = Fabricate(:user)
+      user = Fabricate(:user_with_secondary_email)
       id_token = create_id_token(user, { exp: Time.now, iat: Time.now - 7.days })
       result = authenticate_with_id_token(id_token)
 
@@ -112,7 +112,7 @@ describe MozillaIAM::Authenticator do
     end
 
     it 'will verify email in sign up form with an id_token with an unverified email' do
-      user = Fabricate(:user)
+      user = Fabricate(:user_with_secondary_email)
       id_token = create_id_token(user, { email_verified: false })
       result = authenticate_with_id_token(id_token)
 
@@ -120,7 +120,7 @@ describe MozillaIAM::Authenticator do
     end
 
     it "won't log in a user if they log in with their secondary email" do
-      user = Fabricate(:user)
+      user = Fabricate(:user_with_secondary_email)
       id_token = create_id_token(user, { email: user.secondary_emails.first })
       result = authenticate_with_id_token(id_token)
 
@@ -131,7 +131,7 @@ describe MozillaIAM::Authenticator do
     end
 
     context "when the AAL" do
-      let(:user) { Fabricate(:user) }
+      let(:user) { Fabricate(:user_with_secondary_email) }
       let(:id_token) { create_id_token(user, { "https://sso.mozilla.com/claim/AAL" => "LOW" }) }
       before do
         MozillaIAM::Profile.expects(:refresh_methods).returns([:update_groups])
@@ -161,7 +161,7 @@ describe MozillaIAM::Authenticator do
 
   context '#after_create_account' do
     it 'can create profile for new user' do
-      user = Fabricate(:user)
+      user = Fabricate(:user_with_secondary_email)
       auth = { extra_data: { uid: create_uid(user.username) }}
       MozillaIAM::Profile.stubs(:refresh_methods).returns([])
 

@@ -2,7 +2,7 @@ require_relative '../../../iam_helper'
 
 describe MozillaIAM::Profile do
   describe "#is_aal_enough?" do
-    let(:user) { Fabricate(:user) }
+    let(:user) { Fabricate(:user_with_secondary_email) }
     let(:profile) { MozillaIAM::Profile.new(user, "uid") }
 
     context "when a user is in no mapped groups" do

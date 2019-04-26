@@ -5,7 +5,7 @@ describe MozillaIAM::Profile do
     it { should include(:update_groups) }
   end
 
-  let(:user) { Fabricate(:user) }
+  let(:user) { Fabricate(:user_with_secondary_email) }
   let(:profile) { MozillaIAM::Profile.new(user, "uid") }
 
   context '#update_groups' do

@@ -17,7 +17,7 @@ describe UserSerializer do
   end
 
   shared_context "as another user" do
-    let(:user2) { Fabricate(:user) }
+    let(:user2) { Fabricate(:user_with_secondary_email) }
     let(:json) { UserSerializer.new(user, scope: Guardian.new(user2), root: false).as_json }
   end
 
@@ -26,7 +26,7 @@ describe UserSerializer do
   end
 
   context "with secondary emails" do
-    let(:user) { Fabricate(:user_single_email) }
+    let(:user) { Fabricate(:user) }
 
     before do
       ["first", "second"].each do |name|
@@ -89,8 +89,8 @@ describe UserSerializer do
   end
 
   context "with duplicate accounts (of each other)" do
-    let(:user) { Fabricate(:user) }
-    let(:duplicate_user) { Fabricate(:user) }
+    let(:user) { Fabricate(:user_with_secondary_email) }
+    let(:duplicate_user) { Fabricate(:user_with_secondary_email) }
 
     before do
       profile = MozillaIAM::Profile.new(user, "uid")
@@ -149,7 +149,7 @@ describe UserSerializer do
   end
 
   describe "#mozilla_iam" do
-    let(:user) { Fabricate(:user) }
+    let(:user) { Fabricate(:user_with_secondary_email) }
 
     shared_examples "shown" do
       include_examples "mozilla_iam in serializer"

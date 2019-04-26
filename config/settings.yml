@@ -26,5 +26,5 @@ mozilla_iam:
     shadowed_by_global: true
     client: true
   mozilla_iam_notification_aud:
-    default: "hook.prod.sso.mozilla.com"
+    default: "hook.sso.mozilla.com"
     shadowed_by_global: true

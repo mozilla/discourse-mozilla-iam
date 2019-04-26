@@ -1,7 +1,7 @@
 require_relative '../../iam_helper'
 
 describe MozillaIAM::Profile do
-  let(:user) { Fabricate(:user) }
+  let(:user) { Fabricate(:user_with_secondary_email) }
   let(:profile) { MozillaIAM::Profile.new(user, "uid") }
 
   describe ".during_refresh" do
