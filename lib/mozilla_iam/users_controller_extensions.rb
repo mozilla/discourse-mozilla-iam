@@ -10,5 +10,35 @@ module MozillaIAM
       super
     end
 
+    def user_params
+      result = super
+      if Profile.for(fetch_user_from_params)&.dinopark_enabled?
+        [
+          :name,
+          :title,
+          :bio_raw,
+          :location,
+          :website
+        ].each { |x| result.delete(x) }
+      end
+      result
+    end
+
+    def username
+      if Profile.for(fetch_user_from_params)&.dinopark_enabled?
+        render_json_error(I18n.t("dinopark.update_username"))
+      else
+        super
+      end
+    end
+
+    def pick_avatar
+      if Profile.for(fetch_user_from_params)&.dinopark_enabled?
+        render_json_error(I18n.t("dinopark.update_avatar"))
+      else
+        super
+      end
+    end
+
   end
 end

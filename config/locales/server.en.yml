@@ -9,6 +9,9 @@ en:
     mozilla_iam_person_v2_api_aud: 'Audience for the Mozilla IAM Person API v2'
     dinopark_url: 'URL to DinoPark'
     mozilla_iam_notification_aud: 'Audience of Mozilla IAM Notifications'
+  dinopark:
+    update_username: "Sorry, you can't edit your username on Discourse. Please edit it on the Mozilla People Directory instead."
+    update_avatar: "Sorry, you can't edit your avatar on Discourse. Please edit it on the Mozilla People Directory instead."
   mozilla_iam:
     need_help: "Need help?"
     authenticator:
