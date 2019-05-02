@@ -22,6 +22,7 @@ describe MozillaIAM::Authenticator do
       expect(result.email_valid).to      eq(true)
       expect(result.name).to             eq(user[:name])
       expect(result.extra_data[:uid]).to eq("ad|Mozilla-LDAP|#{user[:username]}")
+      expect(result.user_id).to          eq(result.extra_data[:uid])
     end
 
     it 'can authenticate and create a profile for an existing user' do
@@ -36,6 +37,7 @@ describe MozillaIAM::Authenticator do
       expect(result.email_valid).to      eq(true)
       expect(result.name).to             eq(user.name)
       expect(result.extra_data[:uid]).to eq(create_uid(user.username))
+      expect(result.user_id).to          eq(result.extra_data[:uid])
       expect(uid).to                     eq(create_uid(user.username))
       expect(last_refresh).to            be_within(5.seconds).of Time.now
     end
@@ -63,6 +65,7 @@ describe MozillaIAM::Authenticator do
       expect(result.email_valid).to      eq(true)
       expect(result.name).to             eq(user.name)
       expect(result.extra_data[:uid]).to eq(create_uid(user.username))
+      expect(result.user_id).to          eq(result.extra_data[:uid])
       expect(uid).to                     eq(create_uid(user.username))
       expect(last_refresh).to            be_within(5.seconds).of Time.now
     end
@@ -92,6 +95,7 @@ describe MozillaIAM::Authenticator do
       expect(result.email_valid).to      eq(true)
       expect(result.name).to             eq(user.name)
       expect(result.extra_data[:uid]).to eq(new_uid)
+      expect(result.user_id).to          eq(result.extra_data[:uid])
       expect(uid).to                     eq(new_uid)
       expect(last_refresh).to            be_within(5.seconds).of Time.now
     end
@@ -160,20 +164,40 @@ describe MozillaIAM::Authenticator do
   end
 
   context '#after_create_account' do
-    it 'can create profile for new user' do
-      user = Fabricate(:user_with_secondary_email)
-      auth = { extra_data: { uid: create_uid(user.username) }}
+    let(:user) { Fabricate(:user_with_secondary_email) }
+    let(:authenticator) { MozillaIAM::Authenticator.new('auth0', trusted: true) }
+    before do
       MozillaIAM::Profile.stubs(:refresh_methods).returns([])
+    end
 
-      authenticator = MozillaIAM::Authenticator.new('auth0', trusted: true)
+    it 'can create profile for new user' do
+      auth = { extra_data: { uid: create_uid(user.username) }}
       result = authenticator.after_create_account(user, auth)
 
       uid = user.custom_fields['mozilla_iam_uid']
       last_refresh = Time.parse(user.custom_fields['mozilla_iam_last_refresh'])
+      dinopark_enabled = user.custom_fields['mozilla_iam_dinopark_enabled']
 
       expect(result).to       be_within(5.seconds).of Time.now
       expect(last_refresh).to be_within(5.seconds).of Time.now
       expect(uid).to          eq(create_uid(user.username))
+      expect(dinopark_enabled).to be_nil
+    end
+
+    context "with dinopark_enabled" do
+      it 'can create profile for new user' do
+        auth = { dinopark_enabled: true, extra_data: { uid: create_uid(user.username) }}
+        result = authenticator.after_create_account(user, auth)
+
+        uid = user.custom_fields['mozilla_iam_uid']
+        last_refresh = Time.parse(user.custom_fields['mozilla_iam_last_refresh'])
+        dinopark_enabled = user.custom_fields['mozilla_iam_dinopark_enabled']
+
+        expect(result).to       be_within(5.seconds).of Time.now
+        expect(last_refresh).to be_within(5.seconds).of Time.now
+        expect(uid).to          eq(create_uid(user.username))
+        expect(dinopark_enabled).to eq("t")
+      end
     end
   end
 end

@@ -177,5 +177,41 @@ describe MozillaIAM::API::PersonV2 do
         end
       end
     end
+
+    describe "#blank?" do
+      it "passes through #blank? on @raw" do
+        raw = {}
+        raw.expects(:blank?).returns(:mocked_response)
+        profile = described_class.new(raw)
+        expect(profile.blank?).to eq(:mocked_response)
+      end
+    end
+
+    describe "#to_hash" do
+      it "creates hash of all attributes" do
+        profile = profile_with(
+          primary_username: "username_value",
+          pronouns: "pronouns_value",
+          first_name: "first_name_value",
+          last_name: "last_name_value",
+          fun_title: "fun_title_value",
+          description: "description_value",
+          location: "location_value",
+          picture: "picture_value"
+        )
+
+        hash = profile.to_hash
+        expect(hash["raw"]).to be_nil
+        expect(hash.length).to eq 8
+        expect(hash["username"]).to eq("username_value")
+        expect(hash["pronouns"]).to eq("pronouns_value")
+        expect(hash["full_name"]).to eq("first_name_value last_name_value")
+        expect(hash["fun_title"]).to eq("fun_title_value")
+        expect(hash["description"]).to eq("description_value")
+        expect(hash["location"]).to eq("location_value")
+        expect(hash["picture"]).to eq("picture_value")
+        expect(hash["profile_url"]).to eq("https://dinopark.k8s.test.sso.allizom.org/p/username_value")
+      end
+    end
   end
 end

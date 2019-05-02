@@ -4,6 +4,55 @@ describe UsersController do
   let!(:user) { sign_in(Fabricate(:user, admin: true)) }
   let(:profile) { MozillaIAM::Profile.new(user, "uid") }
 
+  describe '#create' do
+    before do
+      User.any_instance.stubs(:active?).returns(true)
+      UsersController.any_instance.stubs(:honeypot_value).returns(nil)
+      UsersController.any_instance.stubs(:challenge_value).returns(nil)
+    end
+
+    let(:create_params) do
+      {
+        name: "Jill Bloggs",
+        username: "jillbloggs",
+        password: "supersecret",
+        email: "jill@example.com"
+      }
+    end
+
+    context "without dinopark_enabled" do
+      it "creates user as normal" do
+        post "/u.json", params: create_params.merge({
+          dinopark_enabled: false
+        })
+        expect(response.status).to eq 200
+        expect(User.find(JSON.parse(response.body)["user_id"]).username).to eq "jillbloggs"
+        expect(session[:authentication]&.[](:dinopark_enabled)).to be_nil
+      end
+    end
+
+    context "with dinopark_enabled" do
+      it "creates user and sets dinopark_enabled flag in auth data" do
+        post "/u.json", params: create_params.merge({
+          dinopark_enabled: true
+        })
+        expect(response.status).to eq 200
+        expect(User.find(JSON.parse(response.body)["user_id"]).username).to eq "jillbloggs"
+        expect(session[:authentication]&.[](:dinopark_enabled)).to eq true
+      end
+
+      it "uses unique username if its taken" do
+        Fabricate(:user, username: "jillbloggs")
+        post "/u.json", params: create_params.merge({
+          dinopark_enabled: true
+        })
+        expect(response.status).to eq 200
+        expect(User.find(JSON.parse(response.body)["user_id"]).username).to eq "jillbloggs1"
+        expect(session[:authentication]&.[](:dinopark_enabled)).to eq true
+      end
+    end
+  end
+
   describe '#username' do
     let(:new_username) { user.username + "_1" }
 
