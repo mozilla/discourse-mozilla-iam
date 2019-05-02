@@ -34,7 +34,7 @@ module MozillaIAM
           raise SecondaryEmailError.new(user, email)
         end
         result.name = payload['name']
-        result.user_id = uid = payload['sub']
+        uid = payload['sub']
         result.extra_data = { uid: uid }
 
         if user

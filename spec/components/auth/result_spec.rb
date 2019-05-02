@@ -6,18 +6,19 @@ describe Auth::Result do
       result = described_class.new
       result.email = "janebloggs@example.com"
       result.username = "janebloggs"
-      result.user_id = "uid"
+      result.extra_data = { uid: "uid" }
       result
     end
     let(:hash) { result.to_client_hash }
+    let(:profile) { MozillaIAM::API::PersonV2::Profile.new({}) }
 
     before do
-      MozillaIAM::API::PersonV2.any_instance.expects(:get).returns({})
+      MozillaIAM::API::PersonV2.any_instance.expects(:profile).with("uid").returns(profile)
     end
 
     context "without person v2 profile" do
       before do
-        MozillaIAM::API::PersonV2::Profile.any_instance.expects(:blank?).returns(true)
+        profile.expects(:blank?).returns(true)
       end
 
       it "doesn't include dinopark_profile attribute" do
@@ -28,8 +29,8 @@ describe Auth::Result do
 
     context "with person v2 profile" do
       before do
-        MozillaIAM::API::PersonV2::Profile.any_instance.expects(:blank?).returns(false)
-        MozillaIAM::API::PersonV2::Profile.any_instance.expects(:to_hash).returns({
+        profile.expects(:blank?).returns(false)
+        profile.expects(:to_hash).returns({
           username: "janebloggs"
         })
       end

@@ -22,7 +22,6 @@ describe MozillaIAM::Authenticator do
       expect(result.email_valid).to      eq(true)
       expect(result.name).to             eq(user[:name])
       expect(result.extra_data[:uid]).to eq("ad|Mozilla-LDAP|#{user[:username]}")
-      expect(result.user_id).to          eq(result.extra_data[:uid])
     end
 
     it 'can authenticate and create a profile for an existing user' do
@@ -37,7 +36,6 @@ describe MozillaIAM::Authenticator do
       expect(result.email_valid).to      eq(true)
       expect(result.name).to             eq(user.name)
       expect(result.extra_data[:uid]).to eq(create_uid(user.username))
-      expect(result.user_id).to          eq(result.extra_data[:uid])
       expect(uid).to                     eq(create_uid(user.username))
       expect(last_refresh).to            be_within(5.seconds).of Time.now
     end
@@ -65,7 +63,6 @@ describe MozillaIAM::Authenticator do
       expect(result.email_valid).to      eq(true)
       expect(result.name).to             eq(user.name)
       expect(result.extra_data[:uid]).to eq(create_uid(user.username))
-      expect(result.user_id).to          eq(result.extra_data[:uid])
       expect(uid).to                     eq(create_uid(user.username))
       expect(last_refresh).to            be_within(5.seconds).of Time.now
     end
@@ -95,7 +92,6 @@ describe MozillaIAM::Authenticator do
       expect(result.email_valid).to      eq(true)
       expect(result.name).to             eq(user.name)
       expect(result.extra_data[:uid]).to eq(new_uid)
-      expect(result.user_id).to          eq(result.extra_data[:uid])
       expect(uid).to                     eq(new_uid)
       expect(last_refresh).to            be_within(5.seconds).of Time.now
     end
