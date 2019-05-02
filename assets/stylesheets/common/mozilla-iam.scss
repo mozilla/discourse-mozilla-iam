@@ -2,6 +2,32 @@
   label {
     display: inline;
   }
+
+  .dinopark-fields {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-column-gap: 1em;
+    grid-row-gap: 1em;
+    margin-bottom: 1em;
+    align-items: center;
+
+    .value {
+      background-color: #ededf0;
+      border-radius: 0.25em;
+      padding: .5em .6em;
+      min-height: 1.4em;
+    }
+
+    .bio {
+      p:first-child {
+        margin-top: 0;
+      }
+
+      p:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
 }
 
 .user-preferences {

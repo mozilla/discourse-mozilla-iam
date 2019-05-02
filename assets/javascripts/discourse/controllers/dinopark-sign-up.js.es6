@@ -8,6 +8,7 @@ export default Ember.Controller.extend(ModalFunctionality, {
   createAccount: Ember.inject.controller("create-account"),
 
   showingConfirm: false,
+  values: {},
   tosChecked: false,
   submitted: false,
 
@@ -39,6 +40,7 @@ export default Ember.Controller.extend(ModalFunctionality, {
 
     findProfile() {
       this.set("showingConfirm", true)
+      this.set("values", this.get("options.dinopark_profile"))
     },
 
     confirm() {
