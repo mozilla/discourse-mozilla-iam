@@ -15,6 +15,7 @@ describe MozillaIAM::Profile do
 
   shared_examples "no change" do
     it "does nothing" do
+      MessageBus.expects(:publish).never
       profile.send(:update_username)
       user.reload
       expect(user.username).to eq username_before
@@ -26,8 +27,12 @@ describe MozillaIAM::Profile do
   end
 
   shared_examples "updates username" do
-    it "updates username" do
-      profile.send(:update_username)
+    it "updates username and sends refresh to clients" do
+      message = MessageBus.track_publish { profile.send(:update_username) }.first
+      expect(message.data).to eq([username_before, username_after])
+      expect(message.channel).to eq('/mozilla-iam/username-refresh')
+      expect(message.user_ids).to eq([user.id])
+
       user.reload
       expect(user.username).to_not eq username_before
       expect(user.username).to eq username_after
