@@ -4,6 +4,7 @@ describe MozillaIAM::Profile do
 
   shared_context "shared context" do
     before do
+      SiteSetting.dinopark_avatars_enabled = true
       upload = Fabricate(:upload)
       user.update!(uploaded_avatar_id: upload.id)
       user.user_avatar.update_columns(custom_upload_id: upload.id)
@@ -40,6 +41,15 @@ describe MozillaIAM::Profile do
   end
 
   shared_examples "with dinopark_enabled? set to true" do
+    context "with dinopark avatar SiteSetting disabled" do
+      before do
+        SiteSetting.dinopark_avatars_enabled = false
+        profile.expects(:attr).with(:picture).never
+      end
+
+      include_examples "no change"
+    end
+
     context "with a dinopark picture" do
       before do
         profile.expects(:attr).with(:picture).returns("http://example.com/avatar.png")

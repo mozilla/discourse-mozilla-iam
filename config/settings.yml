@@ -25,6 +25,8 @@ mozilla_iam:
     default: "https://dinopark.k8s.test.sso.allizom.org/"
     shadowed_by_global: true
     client: true
+  dinopark_avatars_enabled:
+    default: true
   mozilla_iam_notification_aud:
     default: "hook.sso.mozilla.com"
     shadowed_by_global: true
