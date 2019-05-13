@@ -27,6 +27,9 @@ mozilla_iam:
     client: true
   dinopark_avatars_enabled:
     default: true
+  dinopark_authorized_groups:
+    default: "mozilliansorg_dinopark-preview-access"
+    type: list
   mozilla_iam_notification_aud:
     default: "hook.sso.mozilla.com"
     shadowed_by_global: true

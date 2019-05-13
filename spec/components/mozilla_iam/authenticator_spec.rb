@@ -157,6 +157,32 @@ describe MozillaIAM::Authenticator do
         end
       end
     end
+
+    context "when dinopark_authorized_groups" do
+      fab!(:user) { Fabricate(:user) }
+      let(:result) { authenticate_with_id_token(id_token) }
+      before do
+        SiteSetting.dinopark_authorized_groups = "foo|bar"
+        MozillaIAM::Profile.expects(:refresh_methods).returns([])
+      end
+
+      context "intersects with a profile's groups" do
+        let(:id_token) { create_id_token(user, { "https://sso.mozilla.com/claim/groups": ["everyone", "foo"] }) }
+        it "adds dinopark_access to extra_data" do
+          expect(result.failed).to eq false
+          expect(result.extra_data[:dinopark_access]).to eq true
+        end
+      end
+
+      context "doesn't intersect with a profile's groups" do
+        let(:id_token) { create_id_token(user, { "https://sso.mozilla.com/claim/groups": ["everyone"] }) }
+        it "doesn't add dinopark_access to extra_data" do
+          expect(result.failed).to eq false
+          expect(result.extra_data[:dinopark_access]).to eq false
+        end
+      end
+
+    end
   end
 
   context '#after_create_account' do

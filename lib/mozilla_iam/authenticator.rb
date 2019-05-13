@@ -34,8 +34,15 @@ module MozillaIAM
           raise SecondaryEmailError.new(user, email)
         end
         result.name = payload['name']
+
         uid = payload['sub']
-        result.extra_data = { uid: uid }
+        groups = Array(payload["https://sso.mozilla.com/claim/groups"])
+        dinopark_authorized_groups = SiteSetting.dinopark_authorized_groups.split("|")
+        dinopark_access = (dinopark_authorized_groups & groups).length > 0
+        result.extra_data = {
+          uid: uid,
+          dinopark_access: dinopark_access
+        }
 
         if user
           profile = Profile.new(user, uid)
