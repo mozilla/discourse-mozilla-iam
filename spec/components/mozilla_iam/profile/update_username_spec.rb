@@ -59,6 +59,16 @@ describe MozillaIAM::Profile do
         expect(user.username).to eq "#{username_after}2"
       end
 
+      it "uses username if it becomes available" do
+        u = Fabricate(:user, username: username_after)
+        profile.send(:update_username)
+        expect(user.username).to eq "#{username_after}1"
+
+        u.destroy
+        profile.send(:update_username)
+        expect(user.username).to eq username_after
+      end
+
       it "handles usernames that are too long" do
         SiteSetting.max_username_length = 8
         profile.send(:update_username)
