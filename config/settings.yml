@@ -27,6 +27,7 @@ mozilla_iam:
     client: true
   dinopark_avatars_enabled:
     default: true
+    client: true
   dinopark_authorized_groups:
     default: "mozilliansorg_dinopark-preview-access"
     type: list

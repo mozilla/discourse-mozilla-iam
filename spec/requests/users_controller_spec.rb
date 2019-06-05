@@ -84,7 +84,7 @@ describe UsersController do
   describe '#pick_avatar' do
     let(:upload) { Fabricate(:upload, user: user) }
 
-    context "without dinopark_enabled" do
+    shared_examples "allows update to avatar" do
       it "allows update to avatar" do
         put "/u/#{user.username}/preferences/avatar/pick.json", params: {
           upload_id: upload.id, type: "custom"
@@ -93,6 +93,10 @@ describe UsersController do
         expect(response.status).to eq(200)
         expect(user.reload.uploaded_avatar_id).to eq(upload.id)
       end
+    end
+
+    context "without dinopark_enabled" do
+      include_examples "allows update to avatar"
     end
 
     context "with dinopark_enabled" do
@@ -107,6 +111,14 @@ describe UsersController do
 
         expect(response.status).to eq(422)
         expect(user.reload.uploaded_avatar_id).to_not eq(upload.id)
+      end
+
+      context "with dinopark avatars disabled" do
+        before do
+          SiteSetting.dinopark_avatars_enabled = false
+        end
+
+        include_examples "allows update to avatar"
       end
     end
   end

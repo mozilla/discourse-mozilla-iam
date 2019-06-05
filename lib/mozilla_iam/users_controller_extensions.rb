@@ -37,7 +37,7 @@ module MozillaIAM
     end
 
     def pick_avatar
-      if Profile.for(fetch_user_from_params)&.dinopark_enabled?
+      if SiteSetting.dinopark_avatars_enabled && Profile.for(fetch_user_from_params)&.dinopark_enabled?
         render_json_error(I18n.t("dinopark.update_avatar"))
       else
         super
