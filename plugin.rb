@@ -1,6 +1,6 @@
 # name: mozilla-iam
 # about: A plugin to integrate Discourse with Mozilla's Identity and Access Management (IAM) system
-# version: 1.1.9+cis-webhook
+# version: 1.1.10+cis-webhook
 # authors: Leo McArdle
 # url: https://github.com/mozilla/discourse-mozilla-iam
 

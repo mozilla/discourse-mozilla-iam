@@ -104,7 +104,7 @@ describe MozillaIAM::Authenticator do
 
     it 'will not log in with an expired id_token' do
       user = Fabricate(:user_with_secondary_email)
-      id_token = create_id_token(user, { exp: Time.now, iat: Time.now - 7.days })
+      id_token = create_id_token(user, { exp: Time.now.to_i, iat: (Time.now - 7.days).to_i })
       result = authenticate_with_id_token(id_token)
 
       expect(result.failed).to eq(true)
