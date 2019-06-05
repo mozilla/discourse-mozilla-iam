@@ -2,7 +2,7 @@ module MozillaIAM
   class JWKS
     class << self
       def public_key(jwt)
-        header = ::JWT::Decode.new(jwt, false).decode_segments.first
+        header = ::JWT::Decode.new(jwt, nil, false, nil).decode_segments.second
         key = jwks['keys'].find { |key| key['kid'] == header['kid'] }
         cert = OpenSSL::X509::Certificate.new(Base64.decode64(key['x5c'][0]))
         cert.public_key
