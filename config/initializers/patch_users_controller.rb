@@ -1,0 +1,1 @@
+UsersController.prepend MozillaIAM::UsersControllerExtensions

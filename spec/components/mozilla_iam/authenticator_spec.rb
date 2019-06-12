@@ -157,23 +157,69 @@ describe MozillaIAM::Authenticator do
         end
       end
     end
+
+    context "when dinopark_authorized_groups" do
+      fab!(:user) { Fabricate(:user) }
+      let(:result) { authenticate_with_id_token(id_token) }
+      before do
+        SiteSetting.dinopark_authorized_groups = "foo|bar"
+        MozillaIAM::Profile.expects(:refresh_methods).returns([])
+      end
+
+      context "intersects with a profile's groups" do
+        let(:id_token) { create_id_token(user, { "https://sso.mozilla.com/claim/groups": ["everyone", "foo"] }) }
+        it "adds dinopark_access to extra_data" do
+          expect(result.failed).to eq false
+          expect(result.extra_data[:dinopark_access]).to eq true
+        end
+      end
+
+      context "doesn't intersect with a profile's groups" do
+        let(:id_token) { create_id_token(user, { "https://sso.mozilla.com/claim/groups": ["everyone"] }) }
+        it "doesn't add dinopark_access to extra_data" do
+          expect(result.failed).to eq false
+          expect(result.extra_data[:dinopark_access]).to eq false
+        end
+      end
+
+    end
   end
 
   context '#after_create_account' do
-    it 'can create profile for new user' do
-      user = Fabricate(:user_with_secondary_email)
-      auth = { extra_data: { uid: create_uid(user.username) }}
+    let(:user) { Fabricate(:user_with_secondary_email) }
+    let(:authenticator) { MozillaIAM::Authenticator.new('auth0', trusted: true) }
+    before do
       MozillaIAM::Profile.stubs(:refresh_methods).returns([])
+    end
 
-      authenticator = MozillaIAM::Authenticator.new('auth0', trusted: true)
+    it 'can create profile for new user' do
+      auth = { extra_data: { uid: create_uid(user.username) }}
       result = authenticator.after_create_account(user, auth)
 
       uid = user.custom_fields['mozilla_iam_uid']
       last_refresh = Time.parse(user.custom_fields['mozilla_iam_last_refresh'])
+      dinopark_enabled = user.custom_fields['mozilla_iam_dinopark_enabled']
 
       expect(result).to       be_within(5.seconds).of Time.now
       expect(last_refresh).to be_within(5.seconds).of Time.now
       expect(uid).to          eq(create_uid(user.username))
+      expect(dinopark_enabled).to be_nil
+    end
+
+    context "with dinopark_enabled" do
+      it 'can create profile for new user' do
+        auth = { dinopark_enabled: true, extra_data: { uid: create_uid(user.username) }}
+        result = authenticator.after_create_account(user, auth)
+
+        uid = user.custom_fields['mozilla_iam_uid']
+        last_refresh = Time.parse(user.custom_fields['mozilla_iam_last_refresh'])
+        dinopark_enabled = user.custom_fields['mozilla_iam_dinopark_enabled']
+
+        expect(result).to       be_within(5.seconds).of Time.now
+        expect(last_refresh).to be_within(5.seconds).of Time.now
+        expect(uid).to          eq(create_uid(user.username))
+        expect(dinopark_enabled).to eq("t")
+      end
     end
   end
 end

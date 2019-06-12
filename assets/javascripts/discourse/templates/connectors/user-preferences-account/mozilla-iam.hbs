@@ -1,3 +1,74 @@
+{{#if model.mozilla_iam.dinopark_enabled}}
+  <style>
+    .pref-username,
+    .pref-name,
+    .pref-title {
+      display: none;
+    }
+
+    .pref-dinopark-username,
+    .pref-dinopark-name,
+    .pref-dinopark-title {
+      display: block;
+    }
+  </style>
+
+  <div class="control-group pref-username pref-dinopark-username">
+    <label class="control-label">
+      {{i18n 'user.username.title'}}
+      {{dinopark-edit}}
+    </label>
+    <div class="controls">
+      <span class='static'>{{model.username}}</span>
+    </div>
+    <div class='instructions'>
+      {{{i18n 'user.username.short_instructions' username=model.username}}}
+    </div>
+  </div>
+
+  <div class="control-group pref-name pref-dinopark-name">
+    <label class="control-label">
+      {{i18n 'user.name.title'}}
+      {{dinopark-edit}}
+    </label>
+    <div class="controls">
+        <span class='static'>{{model.name}}</span>
+    </div>
+  </div>
+
+  {{#if siteSettings.dinopark_avatars_enabled}}
+    <style>
+      .pref-avatar {
+        display: none;
+      }
+
+      .pref-dinopark-avatar {
+        display: block;
+      }
+    </style>
+
+    <div class="control-group pref-avatar pref-dinopark-avatar">
+      <label class="control-label" id="profile-picture">
+        {{i18n 'user.avatar.title'}}
+        {{dinopark-edit}}
+      </label>
+      <div class="controls">
+        {{bound-avatar model "huge"}}
+      </div>
+    </div>
+  {{/if}}
+
+  <div class="control-group pref-title pref-dinopark-title">
+    <label class="control-label">
+      {{i18n 'user.title.title'}}
+      {{dinopark-edit}}
+    </label>
+    <div class="controls">
+      <span class='static'>{{model.title}}</span>
+    </div>
+  </div>
+{{/if}}
+
 <div class="control-group pref-mozilla-iam-emails">
   <label class="control-label">{{i18n 'mozilla_iam.user.email.addresses'}}</label>
   {{#if model.email}}

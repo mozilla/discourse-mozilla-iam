@@ -5,6 +5,14 @@ en:
     auth0_client_secret: 'Your auth0 client secret. Find it on the application settings on the Auth0 dashboard.'
     mozilla_iam_person_api_url: 'URL to the Mozilla IAM Person API endpoint'
     mozilla_iam_person_api_aud: 'Audience for the Mozilla IAM Person API'
+    mozilla_iam_person_v2_api_url: 'URL to the Mozilla IAM Person API v2 endpoint'
+    mozilla_iam_person_v2_api_aud: 'Audience for the Mozilla IAM Person API v2'
+    dinopark_url: 'URL to DinoPark'
+    dinopark_avatars_enabled: 'Fetch user avatars from DinoPark (for those with linked profiles)?'
+    mozilla_iam_notification_aud: 'Audience of Mozilla IAM Notifications'
+  dinopark:
+    update_username: "Sorry, you can't edit your username on Discourse. Please edit it on the Mozilla People Directory instead."
+    update_avatar: "Sorry, you can't edit your avatar on Discourse. Please edit it on the Mozilla People Directory instead."
   mozilla_iam:
     need_help: "Need help?"
     authenticator:

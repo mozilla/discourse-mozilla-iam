@@ -1,3 +1,5 @@
+import dinoparkEnabled from "discourse/plugins/mozilla-iam/discourse/lib/dinopark-enabled"
+
 export default {
   setupComponent(args, component) {
     if (args.model.duplicate_accounts) {
@@ -13,6 +15,8 @@ export default {
         component.set("ldap_account", true)
       }
     }
+
+    dinoparkEnabled(args.model)
   },
 
   actions: {

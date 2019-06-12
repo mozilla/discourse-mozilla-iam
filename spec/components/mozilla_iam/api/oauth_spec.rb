@@ -85,9 +85,10 @@ describe MozillaIAM::API::OAuth do
       expect(api.send(:get, "", foo: 'bar')[:success]).to eq "true"
     end
 
-    it "should return an empty hash if the the status code isn't 200" do
-      stub_request(:get, "https://example.com/api/").to_return(status: 403)
-      expect(api.send(:get, "")).to eq({})
+    it "logs error and returns empty hash if the the status code isn't 200" do
+      stub_request(:get, "https://example.com/api/user/uid").to_return(status: 403)
+      Rails.logger.expects(:error).with { |e| e.start_with? "Mozilla IAM: Error fetching /user/uid"}
+      expect(api.send(:get, "user/uid")).to eq({})
     end
   end
 
@@ -135,6 +136,12 @@ describe MozillaIAM::API::OAuth do
       ).to_return(status: 200, body: '{"access_token":"fetched_token"}')
       token = api.send(:fetch_token)
       expect(token).to eq "fetched_token"
+    end
+
+    it "throws error if fetch isn't successful" do
+      stub_request(:post, "https://example.com/oauth/token")
+        .to_return(status: 403, body: '{"error":"Error"}')
+      expect { api.send(:fetch_token) }.to raise_error(/Mozilla IAM: Error fetching OAuth token:/)
     end
   end
 
