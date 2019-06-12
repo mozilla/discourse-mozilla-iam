@@ -16,17 +16,17 @@ mozilla_iam:
     default: 'https://person-api.sso.mozilla.com'
     shadowed_by_global: true
   mozilla_iam_person_v2_api_url:
-    default: "https://person.api.test.sso.allizom.org"
+    default: "https://person.api.sso.mozilla.com"
     shadowed_by_global: true
   mozilla_iam_person_v2_api_aud:
-    default: "api.test.sso.allizom.org"
+    default: "api.sso.mozilla.com"
     shadowed_by_global: true
   dinopark_url:
-    default: "https://dinopark.k8s.test.sso.allizom.org/"
+    default: "https://people.mozilla.org/"
     shadowed_by_global: true
     client: true
   dinopark_avatars_enabled:
-    default: true
+    default: false
     client: true
   dinopark_authorized_groups:
     default: "mozilliansorg_dinopark-preview-access"

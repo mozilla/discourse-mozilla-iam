@@ -102,6 +102,7 @@ describe UsersController do
     context "with dinopark_enabled" do
       before do
         profile.dinopark_enabled = true
+        SiteSetting.dinopark_avatars_enabled = true
       end
 
       it "doesn't allow update to avatar" do

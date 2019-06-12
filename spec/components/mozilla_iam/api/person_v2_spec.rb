@@ -86,7 +86,7 @@ describe MozillaIAM::API::PersonV2 do
     end
 
     include_examples "one-to-one mapping", :username, :primary_username, "janedoe"
-    include_examples "one-to-one mapping", :profile_url, :primary_username, "janedoe", "https://dinopark.k8s.test.sso.allizom.org/p/janedoe"
+    include_examples "one-to-one mapping", :profile_url, :primary_username, "janedoe", "https://people.mozilla.org/p/janedoe"
     include_examples "one-to-one mapping", :pronouns, :pronouns, "she/her"
     include_examples "one-to-one mapping", :fun_title, :fun_title, "Fun job title"
     include_examples "one-to-one mapping", :description, :description, "I have a fun job"
@@ -173,7 +173,7 @@ describe MozillaIAM::API::PersonV2 do
         let(:profile) { profile_with(:picture, "/avatar.png") }
 
         it "returns absolute url" do
-          expect(profile.public_send(:picture)).to eq "https://dinopark.k8s.test.sso.allizom.org/avatar.png"
+          expect(profile.public_send(:picture)).to eq "https://people.mozilla.org/avatar.png"
         end
       end
     end
@@ -210,7 +210,7 @@ describe MozillaIAM::API::PersonV2 do
         expect(hash["description"]).to eq("description_value")
         expect(hash["location"]).to eq("location_value")
         expect(hash["picture"]).to eq("picture_value")
-        expect(hash["profile_url"]).to eq("https://dinopark.k8s.test.sso.allizom.org/p/username_value")
+        expect(hash["profile_url"]).to eq("https://people.mozilla.org/p/username_value")
       end
     end
   end
