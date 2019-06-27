@@ -19,7 +19,7 @@ en:
       sign_up:
         tos: 'I agree to the <a href="%{privacy_url}">privacy policy</a> and <a href="%{tos_url}">terms of service</a>.'
         prompt_title: "Discourse integrates with Mozilla People Directory profiles"
-        prompt_subtitle: "Would you like to link your public profile fields?"
+        prompt_subtitle: "Would you like Discourse to find and link these public profile fields?"
         prompt_description: "You'll be able to review and confirm the information on the next screen."
         confirm_title: "Review and confirm your profile information"
         confirm_description: "The following public profile fields from your Mozilla People Directory profile are ready to be linked."
