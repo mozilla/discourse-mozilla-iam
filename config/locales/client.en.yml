@@ -34,7 +34,7 @@ en:
         description: Bio
         location: Location
     mozillians:
-      edit: "Edit on Mozillians"
+      edit: "Edit"
     mozilla_iam:
       user:
         email:
@@ -45,7 +45,7 @@ en:
           secondary_instructions: "Can also be used to email Discourse."
           secondary_instructions_further: "Change your Mozillians contact identities to edit."
           secondary_instructions_ldap: "Includes LDAP aliases, if you have any."
-          secondary_edit: "Edit secondary email addresses on Mozillians."
+          secondary_edit: "Edit on mozillians.org"
           no_secondary: "No secondary addresses"
           duplicate_accounts: "Duplicate Accounts"
           duplicate_accounts_instructions: "Your duplicate accounts and the emails they've taken."
