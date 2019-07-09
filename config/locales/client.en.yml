@@ -13,6 +13,7 @@ en:
       auth0:
         name: "Mozilla"
     dinopark:
+      welcome_banner: "Welcome to Mozilla Discourse! Complete your profile setup at any time in %{a_tag}your preferences</a>."
       profile_url_title: "Mozilla People Directory Profile"
       edit_short: "Edit"
       edit_long: "Edit on people.mozilla.org"

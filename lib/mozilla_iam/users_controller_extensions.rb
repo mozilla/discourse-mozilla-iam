@@ -7,6 +7,7 @@ module MozillaIAM
         session[:authentication] = {} unless session[:authentication]
         session[:authentication][:dinopark_enabled] = dinopark_enabled
         params[:username] = UserNameSuggester.find_available_username_based_on(params[:username])
+        cookies["show_dinopark_banner"] = 1
       end
       super
     end

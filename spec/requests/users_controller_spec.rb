@@ -29,6 +29,14 @@ describe UsersController do
         expect(User.find(JSON.parse(response.body)["user_id"]).username).to eq "jillbloggs"
         expect(session[:authentication]&.[](:dinopark_enabled)).to be_nil
       end
+
+      it "doesn't set show_dinopark_banner cookie" do
+        post "/u.json", params: create_params.merge({
+          dinopark_enabled: false
+        })
+        expect(response.status).to eq 200
+        expect(cookies["show_dinopark_banner"]).to be_nil
+      end
     end
 
     context "with dinopark_enabled" do
@@ -49,6 +57,14 @@ describe UsersController do
         expect(response.status).to eq 200
         expect(User.find(JSON.parse(response.body)["user_id"]).username).to eq "jillbloggs1"
         expect(session[:authentication]&.[](:dinopark_enabled)).to eq true
+      end
+
+      it "sets show_dinopark_banner cookie" do
+        post "/u.json", params: create_params.merge({
+          dinopark_enabled: true
+        })
+        expect(response.status).to eq 200
+        expect(cookies["show_dinopark_banner"]).to be
       end
     end
   end

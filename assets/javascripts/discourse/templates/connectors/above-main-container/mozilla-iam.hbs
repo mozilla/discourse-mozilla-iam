@@ -1,0 +1,8 @@
+{{#if visible}}
+  <div class="row">
+    <div class="alert alert-info dinopark-welcome-banner" role="alert">
+      <button type="button" class="close" aria-label="Close" {{action "dismiss"}}><span aria-hidden="true">&times;</span></button>
+      <span onclick={{action "click"}}>{{{i18n 'dinopark.welcome_banner' a_tag='<a href="/my/preferences/account">'}}}</span>
+    </div>
+  </div>
+{{/if}}
