@@ -25,6 +25,10 @@ export default Ember.Controller.extend(ModalFunctionality, {
     });
   },
 
+  redirect(url) {
+    window.location = url
+  },
+
   actions: {
     normalSignup() {
       const options = this.get("options")
@@ -57,7 +61,7 @@ export default Ember.Controller.extend(ModalFunctionality, {
       }).then(result => {
         if (result.success) {
           var destination_url = this.get("options.destination_url")
-          window.location = destination_url ? destination_url : "/"
+          this.redirect(destination_url ? destination_url : "/")
         } else {
           this.set("submitted", false)
           this.flash(result.message || I18n.t("create_account.failed"), "error")

@@ -9,22 +9,22 @@
   {{/if}}
   <div class="dinopark-fields">
     <div>{{i18n 'dinopark.fields.username'}}:</div>
-    <div class="value">{{values.username}}</div>
+    <div class="value value-username">{{values.username}}</div>
 
     <div>{{i18n 'dinopark.fields.full_name'}}:</div>
-    <div class="value">{{values.full_name}}</div>
+    <div class="value value-name">{{values.full_name}}</div>
 
     <div>{{i18n 'dinopark.fields.pronouns'}}:</div>
-    <div class="value">{{values.pronouns}}</div>
+    <div class="value value-pronouns">{{values.pronouns}}</div>
 
     <div>{{i18n 'dinopark.fields.fun_title'}}:</div>
-    <div class="value">{{values.fun_title}}</div>
+    <div class="value value-title">{{values.fun_title}}</div>
 
     <div>{{i18n 'dinopark.fields.location'}}:</div>
-    <div class="value">{{values.location}}</div>
+    <div class="value value-location">{{values.location}}</div>
 
     <div>{{i18n 'dinopark.fields.description'}}:</div>
-    <div class="value bio">{{cook-text values.description}}</div>
+    <div class="value value-bio">{{cook-text values.description}}</div>
   </div>
   {{input type="checkbox" id="tos-checkbox" checked=tosChecked}}
   <label for="tos-checkbox">{{{i18n 'dinopark.sign_up.tos' tos_url=siteSettings.tos_url privacy_url=siteSettings.privacy_policy_url}}}</label>

@@ -7,16 +7,18 @@ describe UsersController do
   describe '#create' do
     before do
       User.any_instance.stubs(:active?).returns(true)
-      UsersController.any_instance.stubs(:honeypot_value).returns(nil)
-      UsersController.any_instance.stubs(:challenge_value).returns(nil)
     end
 
     let(:create_params) do
+      get '/u/hp.json'
+      json = JSON.parse(response.body)
       {
         name: "Jill Bloggs",
         username: "jillbloggs",
         password: "supersecret",
-        email: "jill@example.com"
+        email: "jill@example.com",
+        password_confirmation: json["value"],
+        challenge: json["challenge"].reverse
       }
     end
 
