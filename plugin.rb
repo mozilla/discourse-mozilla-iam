@@ -26,3 +26,7 @@ auth_provider(title: 'Mozilla',
               message: 'Log In / Sign Up',
               authenticator: MozillaIAM::Authenticator.new('auth0', trusted: true),
               full_screen_login: true)
+
+after_initialize do
+  User.register_custom_field_type "mozilla_iam_dinopark_enabled", :boolean
+end

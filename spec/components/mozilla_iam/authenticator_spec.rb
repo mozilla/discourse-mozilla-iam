@@ -218,7 +218,7 @@ describe MozillaIAM::Authenticator do
         expect(result).to       be_within(5.seconds).of Time.now
         expect(last_refresh).to be_within(5.seconds).of Time.now
         expect(uid).to          eq(create_uid(user.username))
-        expect(dinopark_enabled).to eq("t")
+        expect(dinopark_enabled).to eq(true)
       end
     end
   end

@@ -74,6 +74,11 @@ module MozillaIAM
         end
     end
 
+    def reload
+      @user.clear_custom_fields
+      @last_refresh = nil
+    end
+
     private
 
     def set_last_refresh(time)
@@ -94,7 +99,7 @@ module MozillaIAM
     end
 
     def self.set(user, key, value)
-      user.custom_fields["mozilla_iam_#{key}"] = value
+      user.upsert_custom_fields([["mozilla_iam_#{key}", value]])
       user.save_custom_fields
       value
     end
