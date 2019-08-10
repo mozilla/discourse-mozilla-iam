@@ -1,0 +1,96 @@
+import { acceptance } from "helpers/qunit-helpers"
+import user_fixtures from "fixtures/user_fixtures"
+import SignUpController from "discourse/plugins/mozilla-iam/discourse/controllers/dinopark-sign-up"
+import { data, dinopark_data, assertDinoparkModal } from "discourse/plugins/mozilla-iam/helpers/dinopark-prompt"
+
+acceptance("Mozilla IAM - Log In", {
+  loggedIn: true
+})
+
+// prevent redirecting out of tests
+SignUpController.reopen({
+  redirect(url) {}
+})
+
+QUnit.test("log in without dinopark enabled", async assert => {
+  $.cookie("authentication_data", JSON.stringify(data))
+  await visit("/")
+
+  assert.notOk(
+    exists(".modal .dinopark-sign-up"),
+    "doesn't open modal"
+  )
+
+  assert.equal(
+    $.cookie("authentication_data"),
+    undefined,
+    "removes authentication_data cookie"
+  )
+})
+
+QUnit.test("log in with dinopark enabled", async assert => {
+  server.post("/mozilla_iam/dinopark_link.json", () => [
+    200,
+    { "Content-Type": "application/json" },
+    { success: true }
+  ])
+
+  $.cookie("authentication_data", JSON.stringify(dinopark_data))
+  await visit("/")
+
+  await assertDinoparkModal(assert)
+
+  assert.equal(
+    $.cookie("authentication_data"),
+    undefined,
+    "removes authentication_data cookie"
+  )
+})
+
+QUnit.test("log in with dinopark enabled - clicking not right now", async assert => {
+  $.cookie("authentication_data", JSON.stringify(dinopark_data))
+  await visit("/")
+
+  assert.ok(
+    exists(".modal .dinopark-sign-up"),
+    "opens modal"
+  )
+
+  await click(".modal-footer .btn:not(.btn-primary)")
+
+  assert.notOk(
+    exists(".modal .dinopark-sign-up"),
+    "closes modal"
+  )
+
+  assert.equal(
+    $.cookie("authentication_data"),
+    undefined,
+    "removes authentication_data cookie"
+  )
+})
+
+QUnit.test("log in with dinopark enabled - failure", async assert => {
+  server.post("/mozilla_iam/dinopark_link.json", () => [
+    200,
+    { "Content-Type": "application/json" },
+    {}
+  ])
+
+  $.cookie("authentication_data", JSON.stringify(dinopark_data))
+  await visit("/")
+
+  await assertDinoparkModal(assert, true)
+
+  assert.equal(
+    find(".modal .alert-error").text().trim(),
+    "Something went wrong. Please try again.",
+    "shows error message"
+  )
+
+  assert.equal(
+    $.cookie("authentication_data"),
+    undefined,
+    "removes authentication_data cookie"
+  )
+})

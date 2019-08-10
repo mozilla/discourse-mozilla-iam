@@ -11,6 +11,7 @@ export default Ember.Controller.extend(ModalFunctionality, {
   values: {},
   tosChecked: false,
   submitted: false,
+  mode: "sign_up",
 
   @on("init")
   fetchConfirmationValue() {
@@ -29,17 +30,35 @@ export default Ember.Controller.extend(ModalFunctionality, {
     window.location = url
   },
 
+  normalSignup() {
+    const options = this.get("options")
+    const createAccountController = this.get("createAccount")
+    createAccountController.setProperties({
+      accountEmail: options.email,
+      accountUsername: options.username,
+      accountName: options.name,
+      authOptions: Ember.Object.create(options)
+    })
+    showModal("createAccount")
+  },
+
+  success() {
+    var destination_url = this.get("options.destination_url")
+    this.redirect(destination_url ? destination_url : "/")
+  },
+
+  fail(error) {
+    this.set("submitted", false)
+    this.flash(error, "error")
+  },
+
   actions: {
-    normalSignup() {
-      const options = this.get("options")
-      const createAccountController = this.get("createAccount")
-      createAccountController.setProperties({
-        accountEmail: options.email,
-        accountUsername: options.username,
-        accountName: options.name,
-        authOptions: Ember.Object.create(options)
-      })
-      showModal("createAccount")
+    dismiss() {
+      if (this.get("mode") == "login") {
+        this.modal.send("closeModal")
+      } else {
+        this.normalSignup()
+      }
     },
 
     findProfile() {
@@ -49,27 +68,39 @@ export default Ember.Controller.extend(ModalFunctionality, {
 
     confirm() {
       this.set("submitted", true)
-      return ajax(userPath(), {
-        data: {
-          username: this.get("options").dinopark_profile.username,
-          email: this.get("options").email,
-          password_confirmation: this.get("accountPasswordConfirm"),
-          challenge: this.get("accountChallenge"),
-          dinopark_enabled: true
-        },
-        type: "POST"
-      }).then(result => {
-        if (result.success) {
-          var destination_url = this.get("options.destination_url")
-          this.redirect(destination_url ? destination_url : "/")
-        } else {
-          this.set("submitted", false)
-          this.flash(result.message || I18n.t("create_account.failed"), "error")
-        }
-      }, () => {
-        this.set("submitted", false)
-        this.flash(I18n.t("create_account.failed"), "error")
-      })
+      if (this.get("mode") == "login") {
+        return ajax("/mozilla_iam/dinopark_link.json", {
+          type: "POST"
+        }).then(result => {
+          if (result.success) {
+            $.removeCookie("authentication_data")
+            this.success()
+          } else {
+            this.fail(result.message || I18n.t("dinopark.link_failed"))
+          }
+        }, () => {
+          this.fail(I18n.t("dinopark.link_failed"))
+        })
+      } else {
+        return ajax(userPath(), {
+          data: {
+            username: this.get("options").dinopark_profile.username,
+            email: this.get("options").email,
+            password_confirmation: this.get("accountPasswordConfirm"),
+            challenge: this.get("accountChallenge"),
+            dinopark_enabled: true
+          },
+          type: "POST"
+        }).then(result => {
+          if (result.success) {
+            this.success()
+          } else {
+            this.fail(result.message || I18n.t("create_account.failed"))
+          }
+        }, () => {
+          this.fail(I18n.t("create_account.failed"))
+        })
+      }
     }
   }
 });

@@ -19,11 +19,11 @@ describe Auth::Result do
       end
     end
 
-    context "with dinopark_access" do
+    context "with show_dinopark_prompt" do
 
       before do
         MozillaIAM::API::PersonV2.any_instance.expects(:profile).with("uid").returns(profile)
-        result.extra_data[:dinopark_access] = true
+        result.extra_data[:show_dinopark_prompt] = true
       end
 
       context "without person v2 profile" do
@@ -50,10 +50,10 @@ describe Auth::Result do
 
     end
 
-    context "without dinopark_access" do
+    context "without show_dinopark_prompt" do
       before do
         MozillaIAM::API::PersonV2.any_instance.expects(:profile).never
-        result.extra_data[:dinopark_access] = false
+        result.extra_data[:show_dinopark_prompt] = false
       end
 
       include_examples "does nothing"

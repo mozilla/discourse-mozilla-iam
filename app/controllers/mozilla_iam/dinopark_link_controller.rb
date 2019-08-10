@@ -9,7 +9,7 @@ module MozillaIAM
       profile = Profile.for(current_user)
       profile.dinopark_enabled = true
       profile.force_refresh
-      render json: {}, status: 200
+      render json: { success: true }, status: 200
     end
 
   end

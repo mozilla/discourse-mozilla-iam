@@ -31,9 +31,9 @@
 {{/d-modal-body}}
 <div class="modal-footer">
   {{#conditional-loading-spinner condition=submitted size="small"}}
-    {{d-button label="dinopark.sign_up.cancel" action=(action "normalSignup")}}
+    {{d-button label="dinopark.sign_up.cancel" action=(action "dismiss")}}
     {{#if showingConfirm}}
-      {{d-button label="dinopark.sign_up.confirm" class=(concat "btn-primary " (unless tosChecked "disabled")) disabled=(unless tosChecked true) action=(action "confirm")}}
+      {{d-button label=(concat "dinopark." mode ".confirm") class=(concat "btn-primary " (unless tosChecked "disabled")) disabled=(unless tosChecked true) action=(action "confirm")}}
     {{else}}
       {{d-button label="dinopark.sign_up.continue" class=(concat "btn-primary " (unless tosChecked "disabled")) disabled=(unless tosChecked true) action=(action "findProfile")}}
     {{/if}}

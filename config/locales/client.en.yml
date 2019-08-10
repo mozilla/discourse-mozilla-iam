@@ -13,6 +13,7 @@ en:
       auth0:
         name: "Mozilla"
     dinopark:
+      link_failed: "Something went wrong. Please try again."
       welcome_banner: "Welcome to Mozilla Discourse! Complete your profile setup at any time in %{a_tag}your preferences</a>."
       profile_url_title: "Mozilla People Directory Profile"
       edit_short: "Edit"
@@ -27,6 +28,8 @@ en:
         cancel: "Not right now"
         continue: "Yes, find and link my profile"
         confirm: "Confirm and create linked account"
+      login:
+        confirm: "Confirm and link account"
       fields:
         username: Username
         full_name: Full Name

@@ -3,7 +3,7 @@ module MozillaIAM
 
     def to_client_hash
       result = super
-      return result unless extra_data[:dinopark_access]
+      return result unless extra_data[:show_dinopark_prompt]
       profile = MozillaIAM::API::PersonV2.new.profile(extra_data[:uid])
       unless profile.blank?
         result.merge!({
