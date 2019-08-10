@@ -6,6 +6,7 @@ describe OmniAuth::Strategies::OAuth2 do
     OmniAuth::Strategies::Auth0.any_instance.stubs(:no_client_id?).returns(false)
     OmniAuth::Strategies::Auth0.any_instance.stubs(:no_client_secret?).returns(false)
     OmniAuth::Strategies::Auth0.any_instance.stubs(:no_domain?).returns(false)
+    SiteSetting.enable_local_logins = false
   end
 
   it "redirects callback with no params back to login" do
