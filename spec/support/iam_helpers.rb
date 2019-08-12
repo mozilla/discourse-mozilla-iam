@@ -46,6 +46,7 @@ module IAMHelpers
       aud: 'the_best_client_id',
       exp: Time.now.to_i + 7.days,
       iat: Time.now.to_i,
+      "https://sso.mozilla.com/claim/groups": ["everyone"],
       "https://sso.mozilla.com/claim/AAL": "UNKNOWN"
     }.merge(additional_payload)
 

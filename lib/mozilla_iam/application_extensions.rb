@@ -5,8 +5,6 @@ module MozillaIAM
         return unless current_user
         return if current_user.id < 0
 
-        cookies.delete(:authentication_data)
-
         mozilla_session_data = SessionData.find_or_create(session, request.cookies)
 
         last_refresh = mozilla_session_data.last_refresh

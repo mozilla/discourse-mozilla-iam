@@ -158,31 +158,80 @@ describe MozillaIAM::Authenticator do
       end
     end
 
-    context "when dinopark_authorized_groups" do
-      fab!(:user) { Fabricate(:user) }
-      let(:result) { authenticate_with_id_token(id_token) }
-      before do
-        SiteSetting.dinopark_authorized_groups = "foo|bar"
-        MozillaIAM::Profile.expects(:refresh_methods).returns([])
-      end
+    shared_examples "dinopark_authorized_groups" do
+      context "when dinopark_authorized_groups" do
+        let(:result) { authenticate_with_id_token(id_token) }
+        before do
+          MozillaIAM::Profile.stubs(:refresh_methods).returns([])
+          SiteSetting.dinopark_authorized_groups = "foo|bar"
+        end
 
-      context "intersects with a profile's groups" do
-        let(:id_token) { create_id_token(user, { "https://sso.mozilla.com/claim/groups": ["everyone", "foo"] }) }
-        it "adds dinopark_access to extra_data" do
-          expect(result.failed).to eq false
-          expect(result.extra_data[:dinopark_access]).to eq true
+        context "intersects with a profile's groups" do
+          let(:id_token) { create_id_token(user, { "https://sso.mozilla.com/claim/groups": ["everyone", "foo"] }) }
+          it "sets show_dinopark_prompt in extra_data to true" do
+            expect(result.failed).to eq false
+            expect(result.extra_data[:show_dinopark_prompt]).to eq true
+          end
+        end
+
+        context "doesn't intersect with a profile's groups" do
+          let(:id_token) { create_id_token(user, { "https://sso.mozilla.com/claim/groups": ["everyone"] }) }
+          it "sets show_dinopark_prompt in extra_data to false" do
+            expect(result.failed).to eq false
+            expect(result.extra_data[:show_dinopark_prompt]).to eq false
+          end
         end
       end
-
-      context "doesn't intersect with a profile's groups" do
-        let(:id_token) { create_id_token(user, { "https://sso.mozilla.com/claim/groups": ["everyone"] }) }
-        it "doesn't add dinopark_access to extra_data" do
-          expect(result.failed).to eq false
-          expect(result.extra_data[:dinopark_access]).to eq false
-        end
-      end
-
     end
+
+    describe "show_dinopark_prompt in extra_data" do
+      context "when user exists" do
+        fab!(:user) { Fabricate(:user) }
+        let(:profile) { MozillaIAM::Profile.new(user, create_uid(user.username)) }
+        before { SiteSetting.dinopark_authorized_groups = "everyone" }
+
+        context "and their dinopark_enabled flag is true" do
+          let(:result) { authenticate_user(user) }
+          before { profile.dinopark_enabled = true }
+
+          it "sets show_dinopark_prompt in extra_data to false" do
+            expect(result.failed).to eq false
+            expect(result.extra_data[:show_dinopark_prompt]).to eq false
+          end
+        end
+
+        context "and their dinopark_enabled flag is false" do
+          before { profile.dinopark_enabled = false }
+
+          context "and their never_show_dinopark_modal flag is true" do
+            let(:result) { authenticate_user(user) }
+            before { profile.send(:set, :never_show_dinopark_modal, true) }
+
+            it "sets show_dinopark_prompt in extra_data to false" do
+              expect(result.failed).to eq false
+              expect(result.extra_data[:show_dinopark_prompt]).to eq false
+            end
+          end
+
+          context "and their never_show_dinopark_modal flag is nil" do
+            before { profile.send(:set, :never_show_dinopark_modal, nil) }
+
+            include_examples "dinopark_authorized_groups"
+          end
+        end
+      end
+
+      context "when a user doesn't exist yet" do
+        let(:user) {{
+          name: 'John Doe',
+          email: 'jdoe@mozilla.com',
+          username: 'jdoe'
+        }}
+
+        include_examples "dinopark_authorized_groups"
+      end
+    end
+
   end
 
   context '#after_create_account' do
@@ -218,7 +267,7 @@ describe MozillaIAM::Authenticator do
         expect(result).to       be_within(5.seconds).of Time.now
         expect(last_refresh).to be_within(5.seconds).of Time.now
         expect(uid).to          eq(create_uid(user.username))
-        expect(dinopark_enabled).to eq("t")
+        expect(dinopark_enabled).to eq(true)
       end
     end
   end

@@ -208,6 +208,31 @@ describe MozillaIAM::Profile do
     end
   end
 
+  describe "#reload" do
+    let(:profile2) { MozillaIAM::Profile.new(user, "uid") }
+    let(:last_refresh) { Time.now - 5.minutes }
+
+    it "reloads #last_refresh value" do
+      described_class.expects(:refresh_methods).returns([])
+      user.custom_fields["mozilla_iam_last_refresh"] = last_refresh
+      user.save_custom_fields
+
+      expect(profile.last_refresh).to be_within(1.second).of last_refresh
+      expect(profile2.last_refresh).to be_within(1.second).of last_refresh
+
+      profile.force_refresh
+      now = Time.now
+
+      expect(profile.last_refresh).to be_within(5.seconds).of now
+      expect(profile2.last_refresh).to be_within(1.second).of last_refresh
+
+      profile2.reload
+
+      expect(profile.last_refresh).to be_within(5.seconds).of now
+      expect(profile2.last_refresh).to be_within(1.second).of now
+    end
+  end
+
   context "#set_last_refresh" do
     it "stores a time and stores it in an instance variable" do
       time = Time.now()

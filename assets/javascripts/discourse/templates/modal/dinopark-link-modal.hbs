@@ -1,4 +1,4 @@
-{{#d-modal-body class="dinopark-sign-up"}}
+{{#d-modal-body class="dinopark-link-modal"}}
   {{#if showingConfirm}}
     <h1>{{i18n 'dinopark.sign_up.confirm_title'}}</h1>
     <p>{{i18n 'dinopark.sign_up.confirm_description'}}</p>
@@ -31,11 +31,16 @@
 {{/d-modal-body}}
 <div class="modal-footer">
   {{#conditional-loading-spinner condition=submitted size="small"}}
-    {{d-button label="dinopark.sign_up.cancel" action=(action "normalSignup")}}
     {{#if showingConfirm}}
-      {{d-button label="dinopark.sign_up.confirm" class=(concat "btn-primary " (unless tosChecked "disabled")) disabled=(unless tosChecked true) action=(action "confirm")}}
+      {{d-button label=(concat "dinopark." mode ".confirm") class=(concat "btn-primary " (unless tosChecked "disabled")) disabled=(unless tosChecked true) action=(action "confirm")}}
     {{else}}
       {{d-button label="dinopark.sign_up.continue" class=(concat "btn-primary " (unless tosChecked "disabled")) disabled=(unless tosChecked true) action=(action "findProfile")}}
+    {{/if}}
+    {{d-button label="dinopark.sign_up.cancel" action=(action "dismiss")}}
+    {{#if isLogin}}
+      <a {{action "dontShowAgain"}} role="button" class="d-modal-cancel">
+        {{i18n "dinopark.login.dont_show_again"}}
+      </a>
     {{/if}}
   {{/conditional-loading-spinner}}
 </div>
