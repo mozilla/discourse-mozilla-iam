@@ -30,6 +30,7 @@ en:
         confirm: "Confirm and create linked account"
       login:
         confirm: "Confirm and link account"
+        dont_show_again: "Don't show this again"
       fields:
         username: Username
         full_name: Full Name

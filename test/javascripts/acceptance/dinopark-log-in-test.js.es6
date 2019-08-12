@@ -70,6 +70,39 @@ QUnit.test("log in with dinopark enabled - clicking not right now", async assert
   )
 })
 
+QUnit.test("log in with dinopark enabled - clicking don't show this again", async assert => {
+  assert.expect(4)
+  server.post("/mozilla_iam/dinopark_link/dont_show.json", () => {
+    assert.ok(true, "sends POST to dinopark_link/dont_show")
+    return [
+      200,
+      { "Content-Type": "application/json" },
+      { success: true }
+    ]
+  })
+
+  $.cookie("authentication_data", JSON.stringify(dinopark_data))
+  await visit("/")
+
+  assert.ok(
+    exists(".modal .dinopark-sign-up"),
+    "opens modal"
+  )
+
+  await click(".modal-footer .d-modal-cancel")
+
+  assert.notOk(
+    exists(".modal .dinopark-sign-up"),
+    "closes modal"
+  )
+
+  assert.equal(
+    $.cookie("authentication_data"),
+    undefined,
+    "removes authentication_data cookie"
+  )
+})
+
 QUnit.test("log in with dinopark enabled - failure", async assert => {
   server.post("/mozilla_iam/dinopark_link.json", () => [
     200,

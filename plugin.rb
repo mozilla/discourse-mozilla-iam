@@ -29,4 +29,5 @@ auth_provider(title: 'Mozilla',
 
 after_initialize do
   User.register_custom_field_type "mozilla_iam_dinopark_enabled", :boolean
+  User.register_custom_field_type "mozilla_iam_never_show_dinopark_modal", :boolean
 end

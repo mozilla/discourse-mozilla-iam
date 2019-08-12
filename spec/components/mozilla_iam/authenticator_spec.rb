@@ -188,6 +188,7 @@ describe MozillaIAM::Authenticator do
       context "when user exists" do
         fab!(:user) { Fabricate(:user) }
         let(:profile) { MozillaIAM::Profile.new(user, create_uid(user.username)) }
+        before { SiteSetting.dinopark_authorized_groups = "everyone" }
 
         context "and their dinopark_enabled flag is true" do
           let(:result) { authenticate_user(user) }
@@ -202,7 +203,21 @@ describe MozillaIAM::Authenticator do
         context "and their dinopark_enabled flag is false" do
           before { profile.dinopark_enabled = false }
 
-          include_examples "dinopark_authorized_groups"
+          context "and their never_show_dinopark_modal flag is true" do
+            let(:result) { authenticate_user(user) }
+            before { profile.send(:set, :never_show_dinopark_modal, true) }
+
+            it "sets show_dinopark_prompt in extra_data to false" do
+              expect(result.failed).to eq false
+              expect(result.extra_data[:show_dinopark_prompt]).to eq false
+            end
+          end
+
+          context "and their never_show_dinopark_modal flag is nil" do
+            before { profile.send(:set, :never_show_dinopark_modal, nil) }
+
+            include_examples "dinopark_authorized_groups"
+          end
         end
       end
 

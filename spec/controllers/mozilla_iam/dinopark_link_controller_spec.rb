@@ -3,10 +3,10 @@
 require_relative '../../iam_helper'
 
 describe MozillaIAM::DinoparkLinkController, type: :request do
+  let(:user) { Fabricate(:user) }
+  let!(:profile) { MozillaIAM::Profile.new(user, "uid") }
 
   describe "#link" do
-    let(:user) { Fabricate(:user) }
-    let!(:profile) { MozillaIAM::Profile.new(user, "uid") }
     let!(:last_refresh) { Time.now - 5.minutes }
 
     before do
@@ -52,4 +52,19 @@ describe MozillaIAM::DinoparkLinkController, type: :request do
     end
 
   end
+
+  describe "#dont_show" do
+    it "sets never_show_dinopark_modal flag" do
+      expect(profile.send(:get, :never_show_dinopark_modal)).to eq nil
+      authenticate_user(user)
+      sign_in(user)
+
+      post "/mozilla_iam/dinopark_link/dont_show.json"
+
+      expect(response.status).to eq 200
+      profile.reload
+      expect(profile.send(:get, :never_show_dinopark_modal)).to eq true
+    end
+  end
+
 end

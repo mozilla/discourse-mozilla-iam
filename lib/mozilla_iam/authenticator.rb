@@ -38,13 +38,14 @@ module MozillaIAM
         uid = payload['sub']
 
         dinopark_enabled = user.present? && Profile.get(user, :dinopark_enabled)
+        never_show_dinopark_modal = user.present? && Profile.get(user, :never_show_dinopark_modal)
         groups = Array(payload["https://sso.mozilla.com/claim/groups"])
         dinopark_authorized_groups = SiteSetting.dinopark_authorized_groups.split("|")
         dinopark_access = (dinopark_authorized_groups & groups).length > 0
 
         result.extra_data = {
           uid: uid,
-          show_dinopark_prompt: !dinopark_enabled && dinopark_access
+          show_dinopark_prompt: !dinopark_enabled && !never_show_dinopark_modal && dinopark_access
         }
 
         if user

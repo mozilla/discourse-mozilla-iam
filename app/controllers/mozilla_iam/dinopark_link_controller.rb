@@ -12,5 +12,10 @@ module MozillaIAM
       render json: { success: true }, status: 200
     end
 
+    def dont_show
+      Profile.set(current_user, :never_show_dinopark_modal, true)
+      render json: { success: true }, status: 200
+    end
+
   end
 end

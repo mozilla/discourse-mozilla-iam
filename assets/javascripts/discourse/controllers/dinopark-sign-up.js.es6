@@ -1,6 +1,6 @@
 import ModalFunctionality from "discourse/mixins/modal-functionality"
 import showModal from "discourse/lib/show-modal"
-import { on } from "ember-addons/ember-computed-decorators"
+import computed, { on } from "ember-addons/ember-computed-decorators"
 import { ajax } from "discourse/lib/ajax"
 import { userPath } from "discourse/lib/url"
 
@@ -12,6 +12,11 @@ export default Ember.Controller.extend(ModalFunctionality, {
   tosChecked: false,
   submitted: false,
   mode: "sign_up",
+
+  @computed("mode")
+  isLogin(mode) {
+    return mode == "login"
+  },
 
   @on("init")
   fetchConfirmationValue() {
@@ -59,6 +64,13 @@ export default Ember.Controller.extend(ModalFunctionality, {
       } else {
         this.normalSignup()
       }
+    },
+
+    dontShowAgain() {
+      this.modal.send("closeModal")
+      return ajax("/mozilla_iam/dinopark_link/dont_show.json", {
+        type: "POST"
+      })
     },
 
     findProfile() {
