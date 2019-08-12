@@ -7,15 +7,15 @@ export default {
     withPluginApi('0.8.30', api => {
 
       api.modifyClass("controller:login", {
-        dinoparkSignUpController: Ember.inject.controller("dinopark-sign-up"),
+        dinoparkLinkModalController: Ember.inject.controller("dinopark-link-modal"),
 
         authenticationComplete(options) {
           if (options.dinopark_profile) {
-            const dinoParkSignUpController = this.get("dinoparkSignUpController")
-            dinoParkSignUpController.setProperties({
+            const dinoparkLinkModalController = this.get("dinoparkLinkModalController")
+            dinoparkLinkModalController.setProperties({
               options: options
             })
-            showModal("dinopark-sign-up")
+            showModal("dinopark-link-modal")
           } else {
             this._super(options)
           }

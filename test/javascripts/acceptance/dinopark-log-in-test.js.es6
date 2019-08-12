@@ -1,6 +1,6 @@
 import { acceptance } from "helpers/qunit-helpers"
 import user_fixtures from "fixtures/user_fixtures"
-import SignUpController from "discourse/plugins/mozilla-iam/discourse/controllers/dinopark-sign-up"
+import ModalController from "discourse/plugins/mozilla-iam/discourse/controllers/dinopark-link-modal"
 import { data, dinopark_data, assertDinoparkModal } from "discourse/plugins/mozilla-iam/helpers/dinopark-prompt"
 
 acceptance("Mozilla IAM - Log In", {
@@ -8,7 +8,7 @@ acceptance("Mozilla IAM - Log In", {
 })
 
 // prevent redirecting out of tests
-SignUpController.reopen({
+ModalController.reopen({
   redirect(url) {}
 })
 
@@ -17,7 +17,7 @@ QUnit.test("log in without dinopark enabled", async assert => {
   await visit("/")
 
   assert.notOk(
-    exists(".modal .dinopark-sign-up"),
+    exists(".modal .dinopark-link-modal"),
     "doesn't open modal"
   )
 
@@ -52,14 +52,14 @@ QUnit.test("log in with dinopark enabled - clicking not right now", async assert
   await visit("/")
 
   assert.ok(
-    exists(".modal .dinopark-sign-up"),
+    exists(".modal .dinopark-link-modal"),
     "opens modal"
   )
 
   await click(".modal-footer .btn:not(.btn-primary)")
 
   assert.notOk(
-    exists(".modal .dinopark-sign-up"),
+    exists(".modal .dinopark-link-modal"),
     "closes modal"
   )
 
@@ -85,14 +85,14 @@ QUnit.test("log in with dinopark enabled - clicking don't show this again", asyn
   await visit("/")
 
   assert.ok(
-    exists(".modal .dinopark-sign-up"),
+    exists(".modal .dinopark-link-modal"),
     "opens modal"
   )
 
   await click(".modal-footer .d-modal-cancel")
 
   assert.notOk(
-    exists(".modal .dinopark-sign-up"),
+    exists(".modal .dinopark-link-modal"),
     "closes modal"
   )
 

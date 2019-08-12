@@ -49,7 +49,7 @@ export const assertNormalModal = assert => {
 
 export const assertDinoparkModal = async (assert, failure) => {
   assert.ok(
-    exists(".modal .dinopark-sign-up"),
+    exists(".modal .dinopark-link-modal"),
     "opens dinopark link modal"
   )
 

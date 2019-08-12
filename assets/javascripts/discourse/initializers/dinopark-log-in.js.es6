@@ -14,15 +14,15 @@ export default {
       }
 
       if (data && data.dinopark_profile) {
-        const dinoParkSignUpController = api._lookupContainer("controller:dinopark-sign-up")
-        dinoParkSignUpController.setProperties({
+        const dinoparkLinkModalController = api._lookupContainer("controller:dinopark-link-modal")
+        dinoparkLinkModalController.setProperties({
           mode: "login",
           options: data
         })
         const router = api._lookupContainer("router:main")
         router.one("didTransition", () => {
           Ember.run.next(() =>
-            showModal("dinopark-sign-up")
+            showModal("dinopark-link-modal")
           )
         })
       }

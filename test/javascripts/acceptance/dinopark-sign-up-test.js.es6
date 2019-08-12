@@ -1,12 +1,12 @@
 import { acceptance } from "helpers/qunit-helpers"
 import user_fixtures from "fixtures/user_fixtures"
-import SignUpController from "discourse/plugins/mozilla-iam/discourse/controllers/dinopark-sign-up"
+import ModalController from "discourse/plugins/mozilla-iam/discourse/controllers/dinopark-link-modal"
 import { data, dinopark_data, assertNormalModal, assertDinoparkModal } from "discourse/plugins/mozilla-iam/helpers/dinopark-prompt"
 
 acceptance("Mozilla IAM - Sign Up")
 
 // prevent redirecting out of tests
-SignUpController.reopen({
+ModalController.reopen({
   redirect(url) {}
 })
 
@@ -26,7 +26,7 @@ QUnit.test("sign up with dinopark enabled, clicking not right now", async assert
   await new Promise(r => setTimeout(r, 0))
 
   assert.ok(
-    exists(".modal .dinopark-sign-up"),
+    exists(".modal .dinopark-link-modal"),
     "opens dinopark link modal"
   )
 
