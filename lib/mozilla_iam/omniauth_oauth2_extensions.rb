@@ -17,7 +17,12 @@ module MozillaIAM
     end
 
     def callback_url
-      full_host + script_name + callback_path
+      url = SiteSetting.auth0_callback_url
+      if url.blank?
+        full_host + script_name + callback_path
+      else
+        url
+      end
     end
 
   end
