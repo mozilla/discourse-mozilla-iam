@@ -24,6 +24,9 @@ mozilla_iam:
   mozilla_iam_person_v2_api_aud:
     default: "api.sso.mozilla.com"
     shadowed_by_global: true
+  mozilla_iam_picture_api_url:
+    default: "https://picture.api.sso.mozilla.com"
+    shadowed_by_global: true
   dinopark_url:
     default: "https://people.mozilla.org/"
     shadowed_by_global: true

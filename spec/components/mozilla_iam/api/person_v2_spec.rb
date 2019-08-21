@@ -171,9 +171,10 @@ describe MozillaIAM::API::PersonV2 do
     describe "#picture" do
       context "with relative url" do
         let(:profile) { profile_with(:picture, "/avatar.png") }
+        before { SiteSetting.mozilla_iam_picture_api_url = "https://picture.api" }
 
         it "returns absolute url" do
-          expect(profile.public_send(:picture)).to eq "https://people.mozilla.org/avatar.png"
+          expect(profile.public_send(:picture)).to eq "https://picture.api/avatar.png"
         end
       end
     end

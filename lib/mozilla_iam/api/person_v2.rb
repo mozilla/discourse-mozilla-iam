@@ -76,7 +76,7 @@ module MozillaIAM
         def process_picture
           url = process :picture
           if !url.blank? && url.starts_with?("/")
-            SiteSetting.dinopark_url.chomp("/") + url
+            SiteSetting.mozilla_iam_picture_api_url + url
           else
             url
           end
