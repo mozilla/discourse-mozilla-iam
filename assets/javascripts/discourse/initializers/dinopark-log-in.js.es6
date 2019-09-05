@@ -7,7 +7,7 @@ export default {
     withPluginApi('0.8.30', api => {
 
       var data = $.cookie("authentication_data")
-      $.removeCookie("authentication_data")
+      $.removeCookie("authentication_data", { path: "/" })
 
       if (data) {
         data = JSON.parse(data)

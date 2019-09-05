@@ -9,11 +9,13 @@ module MozillaIAM
       profile = Profile.for(current_user)
       profile.dinopark_enabled = true
       profile.force_refresh
+      cookies.delete(:authentication_data)
       render json: { success: true }, status: 200
     end
 
     def dont_show
       Profile.set(current_user, :never_show_dinopark_modal, true)
+      cookies.delete(:authentication_data)
       render json: { success: true }, status: 200
     end
 
