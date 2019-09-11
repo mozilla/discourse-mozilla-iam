@@ -31,9 +31,6 @@ mozilla_iam:
     default: "https://people.mozilla.org/"
     shadowed_by_global: true
     client: true
-  dinopark_avatars_enabled:
-    default: false
-    client: true
   dinopark_authorized_groups:
     default: "mozilliansorg_dinopark-preview-access"
     type: list

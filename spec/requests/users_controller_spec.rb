@@ -120,7 +120,6 @@ describe UsersController do
     context "with dinopark_enabled" do
       before do
         profile.dinopark_enabled = true
-        SiteSetting.dinopark_avatars_enabled = true
       end
 
       it "doesn't allow update to avatar" do
@@ -132,13 +131,6 @@ describe UsersController do
         expect(user.reload.uploaded_avatar_id).to_not eq(upload.id)
       end
 
-      context "with dinopark avatars disabled" do
-        before do
-          SiteSetting.dinopark_avatars_enabled = false
-        end
-
-        include_examples "allows update to avatar"
-      end
     end
   end
 

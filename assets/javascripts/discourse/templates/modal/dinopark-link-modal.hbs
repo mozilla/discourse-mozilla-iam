@@ -25,6 +25,13 @@
 
     <div>{{i18n 'dinopark.fields.description'}}:</div>
     <div class="value value-bio">{{cook-text values.description}}</div>
+
+    <div>{{i18n 'dinopark.fields.avatar'}}:</div>
+    <div class="value value-avatar">
+      {{#if values.picture}}
+        <img class="avatar" width="32" height="32" src="{{values.picture}}">
+      {{/if}}
+    </div>
   </div>
   {{input type="checkbox" id="tos-checkbox" checked=tosChecked}}
   <label for="tos-checkbox">{{{i18n 'dinopark.sign_up.tos' tos_url=siteSettings.tos_url privacy_url=siteSettings.privacy_policy_url}}}</label>

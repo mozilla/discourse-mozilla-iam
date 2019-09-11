@@ -2,13 +2,15 @@
   <style>
     .pref-username,
     .pref-name,
-    .pref-title {
+    .pref-title,
+    .pref-avatar {
       display: none;
     }
 
     .pref-dinopark-username,
     .pref-dinopark-name,
-    .pref-dinopark-title {
+    .pref-dinopark-title,
+    .pref-dinopark-avatar {
       display: block;
     }
   </style>
@@ -36,27 +38,15 @@
     </div>
   </div>
 
-  {{#if siteSettings.dinopark_avatars_enabled}}
-    <style>
-      .pref-avatar {
-        display: none;
-      }
-
-      .pref-dinopark-avatar {
-        display: block;
-      }
-    </style>
-
-    <div class="control-group pref-avatar pref-dinopark-avatar">
-      <label class="control-label" id="profile-picture">
-        {{i18n 'user.avatar.title'}}
-        {{dinopark-edit}}
-      </label>
-      <div class="controls">
-        {{bound-avatar model "huge"}}
-      </div>
+  <div class="control-group pref-avatar pref-dinopark-avatar">
+    <label class="control-label" id="profile-picture">
+      {{i18n 'user.avatar.title'}}
+      {{dinopark-edit}}
+    </label>
+    <div class="controls">
+      {{bound-avatar model "huge"}}
     </div>
-  {{/if}}
+  </div>
 
   <div class="control-group pref-title pref-dinopark-title">
     <label class="control-label">

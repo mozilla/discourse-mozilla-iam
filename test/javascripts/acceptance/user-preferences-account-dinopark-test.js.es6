@@ -62,13 +62,6 @@ QUnit.test("viewing self without dinopark enabled", async assert => {
     exists(".pref-dinopark-title"),
     "dinopark title pref isn't shown"
   )
-})
-
-QUnit.test("viewing self without dinopark enabled but dinopark avatars enabled", async assert => {
-  response(server, {})
-  Discourse.set("SiteSettings.dinopark_avatars_enabled", true)
-
-  await visit("/u/eviltrout/preferences/account")
 
   assert.equal(
     getDisplay(".pref-avatar:not(.pref-dinopark-avatar)"),
@@ -80,6 +73,7 @@ QUnit.test("viewing self without dinopark enabled but dinopark avatars enabled",
     exists(".pref-dinopark-avatar"),
     "dinopark avatar pref isn't shown"
   )
+
 })
 
 QUnit.test("viewing self with dinopark enabled", async assert => {
@@ -122,13 +116,6 @@ QUnit.test("viewing self with dinopark enabled", async assert => {
     "block",
     "dinopark title pref is shown"
   )
-})
-
-QUnit.test("viewing self with dinopark and dinopark avatars enabled", async assert => {
-  response(server, { dinopark_enabled: true })
-  Discourse.set("SiteSettings.dinopark_avatars_enabled", true)
-
-  await visit("/u/eviltrout/preferences/account")
 
   assert.equal(
     getDisplay(".pref-avatar:not(.pref-dinopark-avatar)"),
@@ -139,6 +126,6 @@ QUnit.test("viewing self with dinopark and dinopark avatars enabled", async asse
   assert.equal(
     getDisplay(".pref-dinopark-avatar"),
     "block",
-    "normal avatar pref is shown"
+    "dinopark avatar pref is shown"
   )
 })

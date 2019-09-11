@@ -38,6 +38,7 @@ en:
         fun_title: Tagline
         description: Bio
         location: Location
+        avatar: Profile Picture
     mozillians:
       edit: "Edit"
     mozilla_iam:

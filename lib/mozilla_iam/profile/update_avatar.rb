@@ -6,7 +6,6 @@ module MozillaIAM
     during_refresh :update_avatar
 
     def update_avatar
-      return unless SiteSetting.dinopark_avatars_enabled
       return unless dinopark_enabled?
 
       picture = attr(:picture)
