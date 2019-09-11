@@ -1,0 +1,26 @@
+{{#d-modal-body class="dinopark-unlink-modal" title="dinopark.unlink.title"}}
+  <p>{{i18n "dinopark.unlink.description_1"}}</p>
+  <p>{{i18n "dinopark.unlink.description_2"}}</p>
+  <div class="discourse-fields">
+    <div>{{i18n "dinopark.unlink.username"}}:</div>
+    <div class="value value-username">{{user.username}}</div>
+
+    <div>{{i18n "dinopark.unlink.name"}}:</div>
+    <div class="value value-name">{{user.name}}</div>
+
+    <div>{{i18n "dinopark.unlink.bio"}}:</div>
+    <div class="value value-bio">{{{user.bio_cooked}}}</div>
+
+    <div>{{i18n "dinopark.unlink.location"}}:</div>
+    <div class="value value-location">{{user.location}}</div>
+
+    <div>{{i18n "dinopark.unlink.avatar"}}:</div>
+    <div class="value value-avatar">{{bound-avatar user "medium"}}</div>
+  </div>
+{{/d-modal-body}}
+<div class="modal-footer">
+  {{#conditional-loading-spinner condition=submitted size="small"}}
+    {{d-button label="dinopark.unlink.continue" class="btn-primary" action=(action "continue")}}
+    {{d-button label="dinopark.unlink.cancel" action=(action "cancel")}}
+  {{/conditional-loading-spinner}}
+</div>

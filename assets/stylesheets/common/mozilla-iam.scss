@@ -1,9 +1,13 @@
-.dinopark-link-modal {
+.dinopark-link-modal, .dinopark-unlink-modal {
   label {
     display: inline;
   }
 
-  .dinopark-fields {
+  p:first-child {
+    margin-top: 0;
+  }
+
+  .dinopark-fields, .discourse-fields {
     display: grid;
     grid-template-columns: auto 1fr;
     grid-column-gap: 1em;
@@ -28,6 +32,10 @@
         margin-bottom: 0;
       }
     }
+  }
+
+  .discourse-fields {
+    margin-bottom: 0;
   }
 }
 
@@ -76,6 +84,20 @@
 
     .user-info {
       margin-bottom: 0;
+    }
+  }
+}
+
+.dinopark-preferences-banner {
+  .buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 10px;
+    padding-bottom: 5px;
+
+    button {
+      margin: 0 10px;
     }
   }
 }

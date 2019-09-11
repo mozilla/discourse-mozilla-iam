@@ -115,6 +115,37 @@ module IAMHelpers
       .to_return(status: 200, body: MultiJson.dump(body: MultiJson.dump(profile)))
   end
 
+  def stub_person_api_v2_profile_request(uid, profile)
+    stub_oauth_token_request('api.sso.mozilla.com')
+
+    stub_request(:get, "https://person.api.sso.mozilla.com/v2/user/user_id/#{uid}")
+      .to_return(status: 200, body: MultiJson.dump(profile))
+  end
+
+  def single_attribute(value=nil, metadata={})
+    metadata[:verified] = true if metadata[:verified].nil?
+    metadata[:public] = true if metadata[:public].nil?
+    {
+      metadata: {
+        verified: metadata[:verified],
+        display: metadata[:public] ? "public" : "staff"
+      },
+      value: value
+    }
+  end
+
+  def person_v2_profile_with(attributes, value=nil, metadata={})
+    raw = {}
+    if attributes.is_a? Hash
+      attributes.each do |name, value|
+        raw[name] = single_attribute(value)
+      end
+    else
+      raw[attributes] = single_attribute(value, metadata)
+    end
+    raw
+  end
+
   def stub_management_api_profile_request(uid, profile)
     stub_oauth_token_request('https://auth.mozilla.auth0.com/api/v2/')
 

@@ -10,5 +10,6 @@ MozillaIAM::Engine.routes.draw do
   end
   post :notification, to: "notification#notification"
   post :dinopark_link, to: "dinopark_link#link"
+  post :dinopark_unlink, to: "dinopark_link#unlink"
   post "/dinopark_link/dont_show", to: "dinopark_link#dont_show"
 end

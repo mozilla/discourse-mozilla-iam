@@ -27,28 +27,9 @@ describe MozillaIAM::API::PersonV2 do
   end
 
   describe described_class::Profile do
-    def single_attribute(value=nil, metadata={})
-      metadata[:verified] = true if metadata[:verified].nil?
-      metadata[:public] = true if metadata[:public].nil?
-      {
-        metadata: {
-          verified: metadata[:verified],
-          display: metadata[:public] ? "public" : "staff"
-        },
-        value: value
-      }
-    end
 
     def profile_with(attributes, value=nil, metadata={})
-      raw = {}
-      if attributes.is_a? Hash
-        attributes.each do |name, value|
-          raw[name] = single_attribute(value)
-        end
-      else
-        raw[attributes] = single_attribute(value, metadata)
-      end
-      described_class.new(raw)
+      described_class.new person_v2_profile_with(attributes, value, metadata)
     end
 
     shared_examples "one-to-one mapping" do |method, attribute, value, return_value|

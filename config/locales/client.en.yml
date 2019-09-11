@@ -28,9 +28,25 @@ en:
         cancel: "Not right now"
         continue: "Yes, find and link my profile"
         confirm: "Confirm and create linked account"
+      unlink:
+        title: "Unlink your people.mozilla.org profile"
+        description_1: "After unlinking, Discourse will no longer update your account when your people.mozilla.org profile changes."
+        description_2: "The following fields will maintain these current values until manually edited on Discourse:"
+        username: "Username"
+        name: "Name"
+        bio: "About Me"
+        location: "Location"
+        avatar: "Profile Picture"
+        continue: "Continue, unlink my profile"
+        cancel: "Cancel, keep my profile linked"
+        failed: "Failed to unlink account, please try again"
       login:
         confirm: "Confirm and link account"
         dont_show_again: "Don't show this again"
+      preferences:
+        linked_description: "Your account is linked with your <em>public</em> <a href='https://people.mozilla.org' target='_blank'>people.mozilla.org</a> profile fields"
+        unlink: "Unlink"
+        unlink_long: "Unlink your Discourse account from your people.mozilla.org profile"
       fields:
         username: Username
         full_name: Full Name

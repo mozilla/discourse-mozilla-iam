@@ -43,7 +43,7 @@ module MozillaIAM
 
       def access_token
         api_token = ::PluginStore.get('mozilla-iam', "#{@aud}_token")
-        if api_token.nil? || api_token[:exp] < Time.now.to_i + 60
+        if api_token.nil? || api_token[:exp].to_i < Time.now.to_i + 60
           refresh_token
         else
           api_token[:access_token]
