@@ -89,6 +89,12 @@
 }
 
 .dinopark-preferences-banner {
+
+  background-color: $highlight;
+  padding: 10px;
+  margin-bottom: 25px;
+  text-align: center;
+
   .buttons {
     display: flex;
     justify-content: center;
