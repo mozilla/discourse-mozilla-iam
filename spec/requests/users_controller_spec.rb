@@ -24,12 +24,16 @@ describe UsersController do
 
     context "without dinopark_enabled" do
       it "creates user as normal" do
+        UserAuthenticator.any_instance.stubs(:authenticator_name).returns("auth0")
+        MozillaIAM::Authenticator.any_instance.expects(:after_create_account).with() do |_, auth|
+          session[:authentication]&.[](:dinopark_enabled).nil?
+        end
+
         post "/u.json", params: create_params.merge({
           dinopark_enabled: false
         })
         expect(response.status).to eq 200
         expect(User.find(JSON.parse(response.body)["user_id"]).username).to eq "jillbloggs"
-        expect(session[:authentication]&.[](:dinopark_enabled)).to be_nil
       end
 
       it "doesn't set show_dinopark_banner cookie" do
@@ -43,22 +47,30 @@ describe UsersController do
 
     context "with dinopark_enabled" do
       it "creates user and sets dinopark_enabled flag in auth data" do
+        UserAuthenticator.any_instance.stubs(:authenticator_name).returns("auth0")
+        MozillaIAM::Authenticator.any_instance.expects(:after_create_account).with() do |_, auth|
+          auth[:dinopark_enabled] == true
+        end
+
         post "/u.json", params: create_params.merge({
           dinopark_enabled: true
         })
         expect(response.status).to eq 200
         expect(User.find(JSON.parse(response.body)["user_id"]).username).to eq "jillbloggs"
-        expect(session[:authentication]&.[](:dinopark_enabled)).to eq true
       end
 
       it "uses unique username if its taken" do
+        UserAuthenticator.any_instance.stubs(:authenticator_name).returns("auth0")
+        MozillaIAM::Authenticator.any_instance.expects(:after_create_account).with() do |_, auth|
+          auth[:dinopark_enabled] == true
+        end
+
         Fabricate(:user, username: "jillbloggs")
         post "/u.json", params: create_params.merge({
           dinopark_enabled: true
         })
         expect(response.status).to eq 200
         expect(User.find(JSON.parse(response.body)["user_id"]).username).to eq "jillbloggs1"
-        expect(session[:authentication]&.[](:dinopark_enabled)).to eq true
       end
 
       it "sets show_dinopark_banner cookie" do
