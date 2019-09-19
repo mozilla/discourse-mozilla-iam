@@ -15,7 +15,7 @@ module MozillaIAM
         custom_upload = @user&.user_avatar&.custom_upload
         old_origin = custom_upload&.origin
         if old_origin == picture
-          @user.update_columns(uploaded_avatar_id: custom_upload.id)
+          @user.update_columns(uploaded_avatar_id: custom_upload.id) if @user.uploaded_avatar_id != custom_upload.id
           return
         end
 
