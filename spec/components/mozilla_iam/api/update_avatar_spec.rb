@@ -4,12 +4,12 @@ describe MozillaIAM::Profile do
 
   shared_context "shared context" do
     before do
-      upload = Fabricate(:upload)
       user.update!(uploaded_avatar_id: upload.id)
       user.user_avatar.update_columns(custom_upload_id: upload.id)
       stub_request(:get, "http://example.com/avatar.png")
         .to_return(status: 200, body: file_from_fixtures("logo.png"), headers: {})
     end
+    let(:upload) { Fabricate(:upload) }
     let!(:avatar_before) { user.user_avatar.custom_upload }
   end
 
@@ -28,6 +28,7 @@ describe MozillaIAM::Profile do
       avatar_after = user.user_avatar.custom_upload
       expect(avatar_after.id).to eq avatar_before.id
       expect(avatar_after.origin).to eq avatar_before.origin
+      expect(user.uploaded_avatar_id).to eq upload.id
     end
   end
 
@@ -51,7 +52,19 @@ describe MozillaIAM::Profile do
         user.reload
         expect(user.user_avatar.custom_upload.origin).to eq "http://example.com/avatar.png"
       end
+    end
 
+    context "with the custom_upload set, but not chosen" do
+      include_context "with attribute already set"
+      before do
+        user.update!(uploaded_avatar_id: nil)
+      end
+
+      it "changes the active avatar" do
+        profile.send(:update_avatar)
+        user.reload
+        expect(user.uploaded_avatar_id).to eq upload.id
+      end
     end
 
     context "with a dinopark picture which returns an invalid status code" do

@@ -12,8 +12,12 @@ module MozillaIAM
       begin
         raise DinoParkPictureUpdateError if picture.blank?
 
-        old_origin = @user&.user_avatar&.custom_upload&.origin
-        return if old_origin == picture
+        custom_upload = @user&.user_avatar&.custom_upload
+        old_origin = custom_upload&.origin
+        if old_origin == picture
+          @user.update_columns(uploaded_avatar_id: custom_upload.id)
+          return
+        end
 
         raise DinoParkPictureUpdateError unless UserAvatar.import_url_for_user(picture, @user)
       rescue DinoParkPictureUpdateError
