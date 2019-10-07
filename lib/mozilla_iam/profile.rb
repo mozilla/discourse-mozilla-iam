@@ -1,5 +1,7 @@
 module MozillaIAM
   class Profile
+    attr_reader :uid
+    attr_reader :user
     @refresh_methods = []
     @array_keys = []
 
@@ -30,6 +32,28 @@ module MozillaIAM
         user = UserCustomField.where(name: "mozilla_iam_uid", value: uid).last&.user
         return if user.nil?
         return Profile.new(user, uid)
+      end
+
+      def find_or_create_user_from_uid_and_secondary_emails(uid)
+        # This shouldn't be used to give users access from their uid,
+        # as it'll associate on secondary emails, meaning a staff
+        # account could be returned despite the uid coming from
+        # an insecure 1FA method of authentication
+
+        user = find_by_uid(uid)&.user
+        return user if user
+
+        email = API::Management.new.profile(uid).email
+        raise "#{uid} doesn't exist" if email.blank?
+        user = User.find_by_email(email)
+        raise EmailExistsError.new(email, user) if user
+
+        User.create!(
+          email: email,
+          username: UserNameSuggester.suggest(email),
+          name: User.suggest_name(email),
+          staged: true
+        )
       end
     end
 
@@ -107,6 +131,16 @@ module MozillaIAM
     def set(key, value)
       self.class.set(@user, key, value)
     end
+
+    class EmailExistsError < StandardError
+      attr_reader :user
+
+      def initialize(email, user)
+        @user = user
+        super "attempted to create staged user with email #{email}, but a user with that email already exists"
+      end
+    end
+
   end
 end
 

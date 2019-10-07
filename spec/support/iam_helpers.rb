@@ -150,7 +150,7 @@ module IAMHelpers
     stub_oauth_token_request('https://auth.mozilla.auth0.com/api/v2/')
 
     stub_request(:get, "https://auth.mozilla.auth0.com/api/v2/users/#{uid}")
-      .to_return(status: 200, body: MultiJson.dump(app_metadata: profile))
+      .to_return(status: 200, body: MultiJson.dump(profile))
   end
 
   def remove_consts(consts, parent = Object)

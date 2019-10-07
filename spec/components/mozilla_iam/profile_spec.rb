@@ -64,7 +64,7 @@ describe MozillaIAM::Profile do
   end
 
   describe ".find_by_uid" do
-    it "returns a user who has the uid" do
+    it "returns a user's profile who has the uid" do
       profile
       MozillaIAM::Profile.expects(:new).with(user, "uid").returns(profile)
       result = described_class.find_by_uid("uid")
@@ -74,6 +74,44 @@ describe MozillaIAM::Profile do
     it "returns nil if there's no user with that uid" do
       result = described_class.find_by_uid("uid")
       expect(result).to be_nil
+    end
+  end
+
+  describe ".find_or_create_user_from_uid" do
+    context "when the uid already exists in discourse" do
+      it "returns the user" do
+        profile
+        result = described_class.find_or_create_user_from_uid_and_secondary_emails("uid")
+        expect(result).to eq user
+      end
+    end
+
+    context "when the uid doesn't exist in discourse" do
+      context "and when the user's email isn't taken" do
+        it "creates a staged user" do
+          stub_management_api_profile_request("uid2", { email: "user2@example.com" })
+          result = described_class.find_or_create_user_from_uid_and_secondary_emails("uid2")
+          expect(result.email).to eq "user2@example.com"
+          expect(result.staged).to eq true
+        end
+      end
+
+      context "and the email is taken" do
+        it "raises an error including that user" do
+          stub_management_api_profile_request("uid2", { email: user.secondary_emails.first })
+          expect { described_class.find_or_create_user_from_uid_and_secondary_emails("uid2") }.to raise_error { |error|
+            expect(error).to be_a(MozillaIAM::Profile::EmailExistsError)
+            expect(error.user).to eq(user)
+          }
+        end
+      end
+
+      context "and a profile with that uid doesn't exist" do
+        it "raises an error" do
+          stub_management_api_profile_request("uid2", {})
+          expect { described_class.find_or_create_user_from_uid_and_secondary_emails("uid2") }.to raise_error "uid2 doesn't exist"
+        end
+      end
     end
   end
 
