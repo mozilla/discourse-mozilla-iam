@@ -1,6 +1,11 @@
 module MozillaIAM
   module UsersControllerExtensions
 
+    def suspicious?(params)
+      return false if params[:dinopark_enabled] == "true"
+      super
+    end
+
     def create
       params.permit(:dinopark_enabled)
       if dinopark_enabled = (params[:dinopark_enabled] == "true")

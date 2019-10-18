@@ -10,15 +10,11 @@ describe UsersController do
     end
 
     let(:create_params) do
-      get '/u/hp.json'
-      json = JSON.parse(response.body)
       {
         name: "Jill Bloggs",
         username: "jillbloggs",
         password: "supersecret",
         email: "jill@example.com",
-        password_confirmation: json["value"],
-        challenge: json["challenge"].reverse
       }
     end
 
@@ -29,7 +25,11 @@ describe UsersController do
           session[:authentication]&.[](:dinopark_enabled).nil?
         end
 
+        get '/u/hp.json'
+        json = JSON.parse(response.body)
         post "/u.json", params: create_params.merge({
+          password_confirmation: json["value"],
+          challenge: json["challenge"].reverse,
           dinopark_enabled: false
         })
         expect(response.status).to eq 200

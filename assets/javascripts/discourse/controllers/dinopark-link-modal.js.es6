@@ -18,19 +18,6 @@ export default Ember.Controller.extend(ModalFunctionality, {
     return mode == "login"
   },
 
-  @on("init")
-  fetchConfirmationValue() {
-    return ajax(userPath("hp.json")).then(json => {
-      this.setProperties({
-        accountPasswordConfirm: json.value,
-        accountChallenge: json.challenge
-          .split("")
-          .reverse()
-          .join("")
-      });
-    });
-  },
-
   redirect(url) {
     window.location = url
   },
@@ -98,8 +85,6 @@ export default Ember.Controller.extend(ModalFunctionality, {
           data: {
             username: this.get("options").dinopark_profile.username,
             email: this.get("options").email,
-            password_confirmation: this.get("accountPasswordConfirm"),
-            challenge: this.get("accountChallenge"),
             dinopark_enabled: true
           },
           type: "POST"
