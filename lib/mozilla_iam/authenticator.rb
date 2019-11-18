@@ -93,7 +93,7 @@ module MozillaIAM
         {
           authorize_params: {
             action: "signup",
-            scope: 'openid name email'
+            scope: 'openid name email profile'
           }
         }
       )
