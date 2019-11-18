@@ -1,6 +1,6 @@
 import ModalFunctionality from "discourse/mixins/modal-functionality"
 import showModal from "discourse/lib/show-modal"
-import computed, { on } from "ember-addons/ember-computed-decorators"
+import computed, { on } from "discourse-common/utils/decorators"
 import { ajax } from "discourse/lib/ajax"
 import { userPath } from "discourse/lib/url"
 

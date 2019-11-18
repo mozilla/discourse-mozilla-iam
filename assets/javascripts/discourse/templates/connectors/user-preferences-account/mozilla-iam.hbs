@@ -75,7 +75,7 @@
           class="btn btn-medium no-text dinopark-edit"
           title=(i18n "mozilla_iam.user.email.primary_edit")
         }}
-          {{d-icon "pencil" label=(i18n "mozilla_iam.user.email.primary_edit")}}
+          {{d-icon "pencil-alt" label=(i18n "mozilla_iam.user.email.primary_edit")}}
         {{/link-to}}
       {{/if}}
       <div class="value">
@@ -151,7 +151,7 @@
     {{/if}}
   {{else}}
     <div class="controls pref-mozilla-iam-check-email">
-      {{d-button action="checkEmail" actionParam=model title="admin.users.check_email.title" icon="envelope-o" label="admin.users.check_email.text"}}
+      {{d-button action=(action "checkEmail") actionParam=model title="admin.users.check_email.title" icon="far-envelope" label="admin.users.check_email.text"}}
     </div>
   {{/if}}
 </div>
