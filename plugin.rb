@@ -1,6 +1,6 @@
 # name: mozilla-iam
 # about: A plugin to integrate Discourse with Mozilla's Identity and Access Management (IAM) system
-# version: 1.6.2
+# version: 1.6.3
 # authors: Leo McArdle
 # url: https://github.com/mozilla/discourse-mozilla-iam
 
@@ -24,8 +24,7 @@ register_svg_icon "external-link-alt"
 
 auth_provider(title: 'Mozilla',
               message: 'Log In / Sign Up',
-              authenticator: MozillaIAM::Authenticator.new('auth0', trusted: true),
-              full_screen_login: true)
+              authenticator: MozillaIAM::Authenticator.new('auth0', trusted: true))
 
 after_initialize do
   User.register_custom_field_type "mozilla_iam_dinopark_enabled", :boolean
