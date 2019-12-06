@@ -83,6 +83,7 @@ describe MozillaIAM::Profile do
         profile
         result = described_class.find_or_create_user_from_uid_and_secondary_emails("uid")
         expect(result).to eq user
+        expect(described_class.for(result).uid).to eq "uid"
       end
     end
 
@@ -93,6 +94,7 @@ describe MozillaIAM::Profile do
           result = described_class.find_or_create_user_from_uid_and_secondary_emails("uid2")
           expect(result.email).to eq "user2@example.com"
           expect(result.staged).to eq true
+          expect(described_class.for(result).uid).to eq "uid2"
         end
       end
 

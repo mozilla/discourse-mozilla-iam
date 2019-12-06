@@ -48,12 +48,15 @@ module MozillaIAM
         user = User.find_by_email(email)
         raise EmailExistsError.new(email, user) if user
 
-        User.create!(
+        user = User.create!(
           email: email,
           username: UserNameSuggester.suggest(email),
           name: User.suggest_name(email),
           staged: true
         )
+
+        Profile.new(user, uid)
+        user
       end
     end
 
