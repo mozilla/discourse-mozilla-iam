@@ -11,6 +11,7 @@ const response = (server, mozilla_iam) => {
     Object.assign(json.user, {
       can_edit: true,
       can_change_bio: true,
+      can_change_website: true,
       email: "eviltrout@example.com",
       mozilla_iam
     })
