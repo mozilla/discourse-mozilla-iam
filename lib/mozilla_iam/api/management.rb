@@ -22,7 +22,7 @@ module MozillaIAM
         def initialize(raw)
           @raw = raw
           @groups = Array(raw[:groups]) | Array(raw.dig(:app_metadata, :groups))
-          @secondary_emails = Array(raw[:email_aliases])
+          @secondary_emails = Array(raw[:email_aliases]).map { |x| x.is_a?(String) ? x : x[:value] }
           @email = raw[:email]
         end
       end
